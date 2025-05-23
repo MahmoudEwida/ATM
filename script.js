@@ -10,6 +10,12 @@ const positionBar = document.getElementById('position-bar');
 const positionProgress = document.getElementById('position-progress');
 const repCounter = document.getElementById('rep-counter');
 const feedback = document.getElementById('feedback');
+const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
+const videoContainer = document.querySelector('.video-container');
+const container = document.querySelector('.container');
+
+// Fullscreen mode flag
+let isFullscreenMode = false;
 
 // Model and detection variables
 let detector;
@@ -457,8 +463,8 @@ async function setupDetector() {
 async function setupCamera() {
   const constraints = {
     video: {
-      width: { ideal: 640 },
-      height: { ideal: 480 }
+      width: { ideal: 1080 },
+      height: { ideal: 1920 }
     }
   };
 
@@ -987,36 +993,90 @@ function drawPose(pose) {
   });
 }
 
+// Function to enter fullscreen mode for mobile
+function enterFullscreenMode() {
+  if (isFullscreenMode) return;
+  
+  document.body.classList.add('fullscreen-mode');
+  exitFullscreenBtn.classList.remove('hidden');
+  isFullscreenMode = true;
+
+  // For iOS Safari - try to enter real fullscreen if possible
+  if (videoContainer.requestFullscreen) {
+    videoContainer.requestFullscreen().catch(err => {
+      console.log('Error attempting to enable fullscreen:', err);
+      // Continue with our custom fullscreen even if native fails
+    });
+  }
+}
+
+// Function to exit fullscreen mode
+function exitFullscreenMode() {
+  if (!isFullscreenMode) return;
+  
+  document.body.classList.remove('fullscreen-mode');
+  document.body.classList.remove('camera-active');
+  exitFullscreenBtn.classList.add('hidden');
+  isFullscreenMode = false;
+
+  // Exit real fullscreen if needed
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(err => {
+      console.log('Error attempting to exit fullscreen:', err);
+    });
+  }
+  
+  // Stop the camera stream
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => {
+      track.stop();
+    });
+    video.srcObject = null;
+  }
+  
+  // Reset UI state
+  startBtn.disabled = false;
+  startBtn.textContent = 'Start Camera';
+}
+
 // Start the application
 async function startApp() {
-    try {
-        startBtn.disabled = true;
-        startBtn.textContent = 'Loading...';
-        
-        // Load the pose detection model
-        await setupDetector();
-        
-        // Setup the camera
-        await setupCamera();
-        
-        // Start pose detection
-        video.play();
-        detectPose();
-        
-        // Update button states
-        startBtn.textContent = 'Running';
-        resetBtn.disabled = false;
-        
-        // Reset trainer to initial state
-        resetTrainer();
-        
-        console.log('Tricep Pushdown Trainer started successfully');
-    } catch (error) {
-        console.error('Error starting the application:', error);
-        startBtn.disabled = false;
-        startBtn.textContent = 'Start Camera';
-        alert('Error starting the application. Please make sure you have a webcam connected and have granted permission.');
+  try {
+    startBtn.disabled = true;
+    startBtn.textContent = 'Loading...';
+    
+    // Load the pose detection model if not already loaded
+    if (!detector) {
+      await setupDetector();
     }
+    
+    // Setup the camera if not already done
+    if (!video.srcObject) {
+      await setupCamera();
+    }
+    
+    // Show camera and enter fullscreen mode for mobile
+    document.body.classList.add('camera-active');
+    enterFullscreenMode();
+    
+    // Start pose detection
+    video.play();
+    detectPose();
+    
+    // Update button states
+    startBtn.textContent = 'Running';
+    resetBtn.disabled = false;
+    
+    // Reset trainer to initial state
+    resetTrainer();
+    
+    console.log('Tricep Pushdown Trainer started successfully');
+  } catch (error) {
+    console.error('Error starting the application:', error);
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Camera';
+    alert('Error starting the application. Please make sure you have a webcam connected and have granted permission.');
+  }
 }
 
 // Reset the training session
@@ -1033,6 +1093,7 @@ function resetTrainingSession() {
 // Add event listeners
 startBtn.addEventListener('click', startApp);
 resetBtn.addEventListener('click', resetTrainingSession);
+exitFullscreenBtn.addEventListener('click', exitFullscreenMode);
 
 // Calculate performance score based on rep quality and form issues
 function calculatePerformanceScore() {

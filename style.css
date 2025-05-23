@@ -160,8 +160,6 @@ h1 {
 
 #output {
   z-index: 10;
-  will-change: transform; /* Optimize canvas compositing */
-  image-rendering: -webkit-optimize-contrast; /* Faster scaling */
 }
 
 .overlay {

@@ -1,48 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tricep Pushdown Trainer</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div class="container">
-        <h1>Tricep Pushdown Trainer</h1>
+        <h1><i class="fas fa-dumbbell"></i> Tricep Pushdown Trainer</h1>
+
         <div class="video-container">
             <video id="webcam" autoplay playsinline></video>
             <canvas id="output" width="640" height="480"></canvas>
-            
+
+            <!-- Loading overlay removed -->
+
             <!-- Countdown and status overlays -->
             <div id="countdown" class="overlay hidden"></div>
-            <div id="detection-warning" class="overlay hidden">Detection lost! Please adjust position.</div>
+            <div id="detection-warning" class="overlay hidden">
+                <i class="fas fa-exclamation-triangle"></i>
+                Detection lost! Please adjust position.
+            </div>
             <div id="position-bar" class="position-bar hidden">
                 <div id="position-progress"></div>
             </div>
-            
+
             <!-- Rep counters overlay -->
             <div id="counter-container" class="counter-container hidden">
-                <div id="rep-counter" class="counter">Total: 0</div>
-                <div id="correct-counter" class="counter correct">Good: 0</div>
-                <div id="incorrect-counter" class="counter incorrect">Bad: 0</div>
+                <div id="rep-counter" class="counter">
+                    <i class="fas fa-repeat"></i> Total: 0
+                </div>
+                <div id="correct-counter" class="counter correct">
+                    <i class="fas fa-check-circle"></i> Good: 0
+                </div>
+                <div id="incorrect-counter" class="counter incorrect">
+                    <i class="fas fa-times-circle"></i> Bad: 0
+                </div>
             </div>
-            
+
             <!-- Form feedback area -->
             <div id="feedback" class="feedback-area hidden"></div>
         </div>
+
         <div class="controls">
-            <button id="startBtn">Start Camera</button>
-            <button id="resetBtn" disabled>Reset Training</button>
+            <button id="startBtn">
+                <i class="fas fa-camera"></i> Start Camera
+            </button>
+            <button id="resetBtn" disabled>
+                <i class="fas fa-redo"></i> Reset Training
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h2>How to Use</h2>
+            <ol>
+                <li>Click "Start Camera" to begin</li>
+                <li>Stand in front of the camera with your arms bent</li>
+                <li>Hold the position until the countdown finishes</li>
+                <li>Perform tricep pushdowns with proper form</li>
+                <li>The AI will count your reps and provide form feedback</li>
+            </ol>
         </div>
     </div>
-    
+
     <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
-    
+
     <!-- TensorFlow.js models -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0/dist/pose-detection.min.js"></script>
-    
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0/dist/pose-detection.min.js"></script>
+
     <!-- Our code -->
     <script src="script.js"></script>
 </body>
+
 </html>

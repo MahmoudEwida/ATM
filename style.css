@@ -84,6 +84,10 @@ h1 {
   border-radius: 0;
   z-index: 999;
   aspect-ratio: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
 }
 
 #webcam,

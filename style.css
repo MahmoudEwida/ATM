@@ -5,18 +5,18 @@
 }
 
 :root {
-  --primary-color: rgb(0, 139, 139);
-  --secondary-color: #282e35;
-  --text-color: #eeeeee;
-  --bg-color: #1a1f26;
-  --card-bg: #282e35;
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-  --success-color: #4caf50;
-  --warning-color: #ffc107;
-  --error-color: #ff5252;
-  --button-gradient-start: #00adb5;
-  --button-gradient-end: #00ced1;
-  --specific-text-color: #127b67;
+  --primary-color: #ff6b6b; /* Light red */
+  --secondary-color: #1a1a1a; /* Dark gray, almost black */
+  --text-color: #f5f5f5; /* Off-white for better readability */
+  --bg-color: #000000; /* Pure black */
+  --card-bg: #121212; /* Very dark gray for cards */
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  --success-color: #ff8080; /* Lighter red for success */
+  --warning-color: #ffb3b3; /* Very light red for warnings */
+  --error-color: #ff4040; /* Brighter red for errors */
+  --button-gradient-start: #ff5252; /* Red gradient start */
+  --button-gradient-end: #ff7676; /* Red gradient end */
+  --specific-text-color: #ff6b6b; /* Light red for specific text */
 }
 
 body {
@@ -99,6 +99,35 @@ h1 {
   height: 100%;
   border-radius: 12px;
   object-fit: contain; /* Changed from cover to contain to prevent distortion */
+}
+
+.fullscreen-mode #webcam,
+.fullscreen-mode #output {
+  border-radius: 0;
+  max-height: 100vh;
+  max-height: 100dvh;
+  max-width: 100vw;
+}
+
+/* Handle canvas rotation better */
+.rotated-video {
+  transform: rotate(-90deg);
+  transform-origin: center center;
+  object-fit: cover !important;
+}
+
+.fullscreen-mode #webcam,
+.fullscreen-mode #output {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fix rotation issues on mobile */
+@media (max-width: 768px) {
+  .fullscreen-mode .video-container {
+    overflow: hidden;
+  }
 }
 
 #output {
@@ -252,13 +281,12 @@ h1 {
 }
 
 button {
-  background: linear-gradient(to left, rgb(0, 139, 139), rgb(60, 179, 113));
+  background: linear-gradient(to left, var(--button-gradient-start), var(--button-gradient-end));
   border: none;
   color: white;
   padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
   text-align: center;
-  text-decoration: none;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-size: clamp(1rem, 2.5vw, 1.2rem);
@@ -271,9 +299,9 @@ button {
 }
 
 button:hover {
-  background: linear-gradient(to right, rgb(0, 139, 139), rgb(60, 179, 113));
+  background: linear-gradient(to right, var(--button-gradient-end), var(--button-gradient-start));
   transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 18px rgba(255, 0, 0, 0.2);
 }
 
 button:active {
@@ -282,7 +310,9 @@ button:active {
 }
 
 button:disabled {
-  background-color: #5a5a5a;
+  background: #333333;
+  border: 1px solid #444444;
+  color: #777777;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;

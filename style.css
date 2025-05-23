@@ -111,12 +111,10 @@ h1 {
   object-fit: cover; /* Changed back to cover to fill screen like native camera */
 }
 
-/* Flip the camera horizontally so movements match the same direction */
-.fullscreen-mode #webcam {
+/* Flip the output canvas instead of the webcam */
+.fullscreen-mode #output {
   transform: scaleX(-1); /* Horizontal flip */
 }
-
-/* We don't flip the output canvas to ensure pose detection works correctly */
 
 /* Handle canvas rotation better */
 .rotated-video {

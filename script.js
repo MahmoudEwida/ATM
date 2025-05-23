@@ -461,24 +461,25 @@ async function setupDetector() {
 
 // Setup camera
 async function setupCamera() {
-  // Use facingMode: 'user' to prefer front camera on mobile with portrait orientation
+  // Simple camera setup that works across devices
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Basic constraints - on mobile we explicitly request the front camera
   const constraints = {
     video: {
-      facingMode: 'user',
-      width: { ideal: 1080 },
-      height: { ideal: 1920 }
+      facingMode: 'user'
     }
   };
   
-  // Force portrait orientation on mobile
-  if (window.innerHeight > window.innerWidth) {
-    // Already in portrait mode, ensure height > width
-    constraints.video.width = { ideal: 1080 };
-    constraints.video.height = { ideal: 1920 };
+  // Only set resolution constraints on mobile devices
+  if (isMobile) {
+    // For mobile, prioritize height over width to get portrait mode
+    constraints.video.height = { min: 720, ideal: 1280, max: 1920 };
+    constraints.video.width = { min: 480, ideal: 720, max: 1080 };
   } else {
-    // In landscape mode, swap dimensions
-    constraints.video.width = { ideal: 1920 };
-    constraints.video.height = { ideal: 1080 };
+    // For desktop, use standard resolution
+    constraints.video.width = { ideal: 640 };
+    constraints.video.height = { ideal: 480 };
   }
 
   try {
@@ -496,14 +497,29 @@ async function setupCamera() {
         canvas.width = settings.width;
         canvas.height = settings.height;
         
-        // Force portrait orientation for mobile
-        if (settings.height < settings.width && window.innerHeight > window.innerWidth) {
-          // Camera is in landscape but device is in portrait - we need to swap canvas dimensions
-          canvas.width = settings.height;
-          canvas.height = settings.width;
+        // Mobile specific adjustments
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+          // Mobile-specific camera adjustments
+          console.log(`Mobile camera dimensions: ${settings.width}x${settings.height}`);
           
-          // Apply a CSS transform to fix the orientation
-          canvas.style.transform = 'rotate(90deg)';
+          // Clear any previous transforms
+          video.style.transform = '';
+          canvas.style.transform = '';
+          video.classList.remove('rotated-video');
+          canvas.classList.remove('rotated-video');
+          
+          // Set object-fit to cover to fill the screen properly
+          video.style.objectFit = 'cover';
+          canvas.style.objectFit = 'cover';
+          
+          // For phones that return landscape video when held in portrait
+          if (window.innerHeight > window.innerWidth && settings.width > settings.height) {
+            console.log('Applying mobile rotation fix');
+            video.classList.add('rotated-video');
+            canvas.classList.add('rotated-video');
+          }
         }
         
         console.log(`Camera actual resolution: ${settings.width}x${settings.height}`);

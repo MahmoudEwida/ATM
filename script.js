@@ -569,12 +569,6 @@ async function detectPose() {
 
 // Process detection and track exercise
 function processDetection(keypoints) {
-  // Flip keypoints horizontally to correct camera mirroring
-  keypoints.forEach(keypoint => {
-    // Flip X coordinate (mirroring horizontally)
-    keypoint.x = canvas.width - keypoint.x;
-  });
-  
   // Update frame counter
   sessionData.frame_count.push(sessionData.frame_count.length);
   
@@ -983,12 +977,7 @@ function drawPose(pose) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Save the current context state
-  ctx.save();
-  
-  // Flip the canvas horizontally to match natural movement direction
-  ctx.scale(-1, 1);
-  ctx.translate(-canvas.width, 0);
+  // No canvas transformation needed for standard camera view
   
   // Draw pose using TensorFlow.js pose detection
   const keypoints = pose.keypoints;
@@ -1048,8 +1037,7 @@ function drawPose(pose) {
     }
   });
   
-  // Restore the context to its original state
-  ctx.restore();
+  // No context restoration needed
 }
 
 // Function to enter fullscreen mode for mobile

@@ -102,7 +102,7 @@ const MOVEMENT_WINDOW_SIZE = 20;
 
 // Add smoothing for landmark positions
 let landmarkHistory = {};
-const SMOOTHING_FACTOR = 0.7;  // Increased from 0.5 for better performance
+const SMOOTHING_FACTOR = 0.5;  // Higher value = more smoothing (0.5 provides strong smoothing)
 
 // Add smoothing for form feedback to prevent flickering
 let feedbackHistory = new Map();
@@ -263,24 +263,23 @@ function drawArrow(ctx, startPoint, endPoint, color, thickness = 3) {
   ctx.fill();
 }
 
-// Function to calculate angle between three points (optimized)  
+// Function to calculate angle between three points
 function calculateAngle(a, b, c) {
-  // Direct vector calculation
-  const abX = b.x - a.x;
-  const abY = b.y - a.y;
-  const cbX = b.x - c.x;
-  const cbY = b.y - c.y;
+  const ab = { x: b.x - a.x, y: b.y - a.y };
+  const cb = { x: b.x - c.x, y: b.y - c.y };
   
-  // Calculate dot product directly
-  const dot = abX * cbX + abY * cbY;
+  // Calculate dot product
+  const dot = ab.x * cb.x + ab.y * cb.y;
   
-  // Use fast inverse square root approximation
-  const magAB = 1/Math.sqrt(abX**2 + abY**2);
-  const magCB = 1/Math.sqrt(cbX**2 + cbY**2);
+  // Calculate magnitudes
+  const magAB = Math.sqrt(ab.x * ab.x + ab.y * ab.y);
+  const magCB = Math.sqrt(cb.x * cb.x + cb.y * cb.y);
   
   // Calculate angle in radians and convert to degrees
-  // Using the optimization with inverse magnitudes
-  return Math.acos(dot * magAB * magCB) * (180 / Math.PI);
+  const angleRad = Math.acos(dot / (magAB * magCB));
+  const angleDeg = angleRad * (180 / Math.PI);
+  
+  return angleDeg;
 }
 
 // Smooth angle values with a moving average
@@ -289,7 +288,7 @@ let smoothedAngles = {
   back: [],
   elbowVertical: []
 };
-const ANGLE_SMOOTHING_WINDOW = 5; // Reduced from 10 for better performance
+const ANGLE_SMOOTHING_WINDOW = 10;
 
 // Function to smooth an angle value using moving average
 function smoothAngle(newValue, angleType) {
@@ -453,43 +452,38 @@ function resetTrainer() {
   console.log('Trainer reset');
 }
 
-// Initialize the detector with optimized configuration
+// Initialize the detector
 async function setupDetector() {
   // Load the MoveNet model
   const modelType = poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING;
   model = poseDetection.SupportedModels.MoveNet;
   const modelConfig = {
     modelType,
-    enableSmoothing: true,
-    maxPoses: 1, // Ensure only 1 person detection
-    scoreThreshold: 0.35, // Increased from default 0.3
-    flipHorizontal: false // Remove internal flipping
+    enableSmoothing: true
   };
   
   detector = await poseDetection.createDetector(model, modelConfig);
-  console.log('MoveNet model loaded successfully with optimized configuration');
+  console.log('MoveNet model loaded successfully');
 }
 
 // Setup camera
 async function setupCamera() {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  // Configure camera with balanced performance and quality
+  // Configure camera to match native phone camera app
   const constraints = {
     video: {
       facingMode: 'user',
-      width: { ideal: 1280 },  // Reduced from 1920 for better performance
-      height: { ideal: 720 },  // Reduced from 1080 for better performance
-      frameRate: { ideal: 30 }, // Match target FPS
+      width: { ideal: 1920 },  // Higher resolution for better quality
+      height: { ideal: 1080 },
       zoom: 1.0             // No digital zoom by default
     }
   };
   
-  // On mobile, request reasonable quality with framerate constraint
+  // On mobile, request the highest quality possible
   if (isMobile) {
-    constraints.video.width = { ideal: 1280, min: 640 };
-    constraints.video.height = { ideal: 720, min: 480 };
-    constraints.video.frameRate = { ideal: 30, max: 30 }; // Cap at 30fps
+    constraints.video.width = { ideal: 1920, min: 1280 };
+    constraints.video.height = { ideal: 1080, min: 720 };
   }
   
   console.log('Camera constraints:', constraints);

@@ -461,8 +461,10 @@ async function setupDetector() {
 
 // Setup camera
 async function setupCamera() {
+  // Use facingMode: 'user' to prefer front camera on mobile
   const constraints = {
     video: {
+      facingMode: 'user',
       width: { ideal: 1080 },
       height: { ideal: 1920 }
     }
@@ -474,6 +476,16 @@ async function setupCamera() {
     
     return new Promise((resolve) => {
       video.onloadedmetadata = () => {
+        // Update canvas dimensions to match actual video dimensions
+        // This prevents distortion by using the camera's natural aspect ratio
+        const videoTrack = stream.getVideoTracks()[0];
+        const settings = videoTrack.getSettings();
+        
+        // Set canvas dimensions to match actual camera resolution
+        canvas.width = settings.width;
+        canvas.height = settings.height;
+        
+        console.log(`Camera actual resolution: ${settings.width}x${settings.height}`);
         resolve(video);
       };
     });

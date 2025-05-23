@@ -102,18 +102,14 @@ h1 {
   object-fit: cover; /* Using cover to fill the container completely */
 }
 
+/* Mobile camera styles */
 .fullscreen-mode #webcam,
 .fullscreen-mode #output {
   border-radius: 0;
   height: 100%;
   width: 100%;
   object-position: center;
-  object-fit: cover; /* Changed back to cover to fill screen like native camera */
-}
-
-/* Flip the output canvas instead of the webcam */
-.fullscreen-mode #output {
-  transform: scaleX(-1); /* Horizontal flip */
+  object-fit: cover; /* Fill screen like native camera */
 }
 
 /* Handle canvas rotation better */

@@ -970,6 +970,18 @@ let useRightSide = true; // Default to right side
 
 // Draw the pose skeleton and keypoints
 function drawPose(pose) {
+  if (!pose || !pose.keypoints) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Save the current context state
+  ctx.save();
+  
+  // Flip the canvas horizontally to match natural movement direction
+  ctx.scale(-1, 1);
+  ctx.translate(-canvas.width, 0);
+  
+  // Draw pose using TensorFlow.js pose detection
   const keypoints = pose.keypoints;
   
   // Determine which side is more visible
@@ -1026,6 +1038,9 @@ function drawPose(pose) {
       ctx.stroke();
     }
   });
+  
+  // Restore the context to its original state
+  ctx.restore();
 }
 
 // Function to enter fullscreen mode for mobile

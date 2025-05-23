@@ -107,8 +107,8 @@ h1 {
   border-radius: 0;
   height: 100%;
   width: 100%;
-  object-position: center 20%; /* Move focus point upward to show more body */
-  object-fit: contain; /* Use contain instead of cover to show more */
+  object-position: center;
+  object-fit: cover; /* Changed back to cover to fill screen like native camera */
 }
 
 /* Handle canvas rotation better */
@@ -146,9 +146,13 @@ h1 {
   @media (orientation: portrait) {
     .fullscreen-mode #webcam,
     .fullscreen-mode #output {
-      object-fit: contain !important;
-      object-position: center 20% !important;
-      background-color: black;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+    
+    /* Make sure the video fills the entire screen */
+    .fullscreen-mode .video-container {
+      padding: 0;
     }
   }
 }

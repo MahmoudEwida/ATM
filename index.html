@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tricep Pushdown Trainer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tricep Pushdown Trainer</h1>
+        <div class="video-container">
+            <video id="webcam" autoplay playsinline></video>
+            <canvas id="output" width="640" height="480"></canvas>
+            
+            <!-- Countdown and status overlays -->
+            <div id="countdown" class="overlay hidden"></div>
+            <div id="detection-warning" class="overlay hidden">Detection lost! Please adjust position.</div>
+            <div id="position-bar" class="position-bar hidden">
+                <div id="position-progress"></div>
+            </div>
+            
+            <!-- Rep counters overlay -->
+            <div id="counter-container" class="counter-container hidden">
+                <div id="rep-counter" class="counter">Total: 0</div>
+                <div id="correct-counter" class="counter correct">Good: 0</div>
+                <div id="incorrect-counter" class="counter incorrect">Bad: 0</div>
+            </div>
+            
+            <!-- Form feedback area -->
+            <div id="feedback" class="feedback-area hidden"></div>
+        </div>
+        <div class="controls">
+            <button id="startBtn">Start Camera</button>
+            <button id="resetBtn" disabled>Reset Training</button>
+        </div>
+    </div>
+    
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    
+    <!-- TensorFlow.js models -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0/dist/pose-detection.min.js"></script>
+    
+    <!-- Our code -->
+    <script src="script.js"></script>
+</body>
+</html>

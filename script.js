@@ -461,7 +461,7 @@ async function setupDetector() {
 
 // Setup camera
 async function setupCamera() {
-  // Use facingMode: 'user' to prefer front camera on mobile
+  // Use facingMode: 'user' to prefer front camera on mobile with portrait orientation
   const constraints = {
     video: {
       facingMode: 'user',
@@ -469,6 +469,17 @@ async function setupCamera() {
       height: { ideal: 1920 }
     }
   };
+  
+  // Force portrait orientation on mobile
+  if (window.innerHeight > window.innerWidth) {
+    // Already in portrait mode, ensure height > width
+    constraints.video.width = { ideal: 1080 };
+    constraints.video.height = { ideal: 1920 };
+  } else {
+    // In landscape mode, swap dimensions
+    constraints.video.width = { ideal: 1920 };
+    constraints.video.height = { ideal: 1080 };
+  }
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -484,6 +495,16 @@ async function setupCamera() {
         // Set canvas dimensions to match actual camera resolution
         canvas.width = settings.width;
         canvas.height = settings.height;
+        
+        // Force portrait orientation for mobile
+        if (settings.height < settings.width && window.innerHeight > window.innerWidth) {
+          // Camera is in landscape but device is in portrait - we need to swap canvas dimensions
+          canvas.width = settings.height;
+          canvas.height = settings.width;
+          
+          // Apply a CSS transform to fix the orientation
+          canvas.style.transform = 'rotate(90deg)';
+        }
         
         console.log(`Camera actual resolution: ${settings.width}x${settings.height}`);
         resolve(video);

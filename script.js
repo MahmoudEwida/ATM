@@ -603,6 +603,8 @@ function processDetection(keypoints) {
   
   // Check if we have the minimum required landmarks for tricep pushdown analysis
   const requiredLandmarks = [5, 6, 7, 8, 9, 10, 11, 12]; // Shoulders, elbows, wrists, hips
+  // Also track leg landmarks (knees, ankles) separately with a lower threshold
+  const legLandmarks = [13, 14, 15, 16]; // Left/right knees and ankles
   const visibleLandmarks = requiredLandmarks.filter(idx => keypoints[idx].score > 0.3);
   
   if (visibleLandmarks.length >= requiredLandmarks.length - 2) { // Allow some missing landmarks
@@ -711,7 +713,8 @@ function processDetection(keypoints) {
         ctx.lineTo(hip.x, hip.y);
         ctx.stroke();
         
-        if (knee.score > 0.3 && ankle.score > 0.3) {
+        // Lower threshold for legs to improve visibility (0.2 instead of 0.3)
+        if (knee.score > 0.2 && ankle.score > 0.2) {
           ctx.beginPath();
           ctx.moveTo(hip.x, hip.y);
           ctx.lineTo(knee.x, knee.y);
@@ -1023,10 +1026,16 @@ function drawPose(pose) {
     const keypoint = keypoints[i];
     
     // Only draw keypoints with high confidence
-    if (keypoint.score > 0.3) {
+    // Use a lower threshold for leg keypoints (indices 13-16 are knees and ankles)
+    const isLegKeypoint = (i >= 13 && i <= 16);
+    const confidenceThreshold = isLegKeypoint ? 0.2 : 0.3;
+    
+    if (keypoint.score > confidenceThreshold) {
       ctx.fillStyle = keypointColors[i];
       // Use rectangle instead of arc for better performance
-      ctx.fillRect(keypoint.x - 2, keypoint.y - 2, 4, 4);
+      // Make leg keypoints slightly larger for better visibility
+      const pointSize = isLegKeypoint ? 5 : 4;
+      ctx.fillRect(keypoint.x - pointSize/2, keypoint.y - pointSize/2, pointSize, pointSize);
     }
   }
   
@@ -1059,8 +1068,14 @@ function drawPose(pose) {
     const keypointA_obj = keypoints[indexA];
     const keypointB_obj = keypoints[indexB];
     
-    // Only draw if both keypoints have high confidence
-    if (keypointA_obj.score > 0.3 && keypointB_obj.score > 0.3) {
+    // Check if this is a leg connection
+    const isLegConnection = keypointA.includes('knee') || keypointB.includes('knee') || 
+                         keypointA.includes('ankle') || keypointB.includes('ankle');
+    // Use a lower threshold for leg connections
+    const confidenceThreshold = isLegConnection ? 0.2 : 0.3;
+    
+    // Only draw if both keypoints have sufficient confidence
+    if (keypointA_obj.score > confidenceThreshold && keypointB_obj.score > confidenceThreshold) {
       // Simplified side detection
       const isRightSide = keypointA.includes('right') || keypointB.includes('right');
       const isLeftSide = keypointA.includes('left') || keypointB.includes('left');

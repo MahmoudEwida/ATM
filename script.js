@@ -101,7 +101,7 @@ const SMOOTHING_FACTOR = 0.5;  // Higher value = more smoothing (0.5 provides st
 // Add smoothing for form feedback to prevent flickering
 let feedbackHistory = new Map();
 const FEEDBACK_PERSISTENCE = 20; // Increased - frames to keep feedback visible once triggered
-const FEEDBACK_THRESHOLD = 5; // Number of consecutive frames needed to trigger a feedback message
+const FEEDBACK_THRESHOLD = 8; // Number of consecutive frames needed to trigger a feedback message
 
 // Feedback state tracking to prevent flickering
 let feedbackStates = {
@@ -147,6 +147,8 @@ const keypointMap = {
   left_ankle: 15,
   right_ankle: 16
 };
+
+// Loading overlay removed
 
 // Helper Functions
 
@@ -358,12 +360,27 @@ function drawFeedback(messages) {
   
   feedback.classList.remove('hidden');
   
-  // Convert map to array of message elements
+  // Convert map to array of message elements with icons
   const messageElements = [];
   feedbackHistory.forEach((item, text) => {
     // Apply fading effect for messages that are persisting but not active
     const opacity = Math.max(0.3, item.count / FEEDBACK_PERSISTENCE);
-    messageElements.push(`<div style="color: ${item.color}; opacity: ${opacity}">${text}</div>`);
+    let icon = 'fa-info-circle';
+    
+    // Choose appropriate icon based on feedback type
+    if (text.includes('Good form')) {
+      icon = 'fa-check-circle';
+    } else if (text.includes('Back too straight') || text.includes('Back too tilted')) {
+      icon = 'fa-exclamation-triangle';
+    } else if (text.includes('Elbow')) {
+      icon = 'fa-hand-paper';
+    }
+    
+    messageElements.push(`
+      <div style="color: ${item.color}; opacity: ${opacity}">
+        <i class="fas ${icon}"></i> ${text}
+      </div>
+    `);
   });
   
   feedback.innerHTML = messageElements.join('');
@@ -823,6 +840,44 @@ function handleExerciseState(elbowAngle, backAngle, elbowVerticalAngle, elbowXMo
         repCounter.textContent = `Total: ${counter}`;
         console.log(`Rep ${counter} detected! Correct: ${correctReps}, Incorrect: ${incorrectReps}`);
         
+        // Check if 12 repetitions have been completed
+        if (counter >= 12) {
+          // Generate text file with exercise results
+          generateResultsFile();
+          
+          // Display completion message in the middle of the camera view
+          const completionMessage = document.createElement('div');
+          completionMessage.className = 'completion-message';
+          completionMessage.innerHTML = '<h2>Exercise Complete!</h2><p>Results have been saved to a text file.</p>';
+          document.querySelector('.video-container').appendChild(completionMessage);
+          
+          // Remove the completion message after 5 seconds
+          setTimeout(() => {
+            if (completionMessage.parentNode) {
+              completionMessage.parentNode.removeChild(completionMessage);
+            }
+          }, 5000);
+          
+          // Stop the camera and AI after a short delay
+          setTimeout(() => {
+            // Stop the camera
+            if (video.srcObject) {
+              video.srcObject.getTracks().forEach(track => {
+                track.stop();
+              });
+            }
+            
+            // Stop the animation frame
+            if (rafId) {
+              cancelAnimationFrame(rafId);
+            }
+            
+            // Reset button states
+            startBtn.disabled = false;
+            startBtn.textContent = 'Start Camera';
+          }, 5000);
+        }
+        
         // Store rep data
         sessionData.rep_markers.push(frameCount);
         sessionData.rep_elbow_angles.push(elbowAngle);
@@ -934,64 +989,190 @@ function drawPose(pose) {
 
 // Start the application
 async function startApp() {
-  try {
-    startBtn.disabled = true;
-    startBtn.textContent = 'Loading...';
-    
-    // Load the pose detection model
-    await setupDetector();
-    
-    // Setup the camera
-    await setupCamera();
-    
-    // Start pose detection
-    video.play();
-    detectPose();
-    
-    // Update button states
-    startBtn.textContent = 'Running';
-    resetBtn.disabled = false;
-    
-    // Reset trainer to initial state
-    resetTrainer();
-    
-    console.log('Tricep Pushdown Trainer started successfully');
-  } catch (error) {
-    console.error('Error starting the application:', error);
-    startBtn.disabled = false;
-    startBtn.textContent = 'Start Camera';
-  }
+    try {
+        startBtn.disabled = true;
+        startBtn.textContent = 'Loading...';
+        
+        // Load the pose detection model
+        await setupDetector();
+        
+        // Setup the camera
+        await setupCamera();
+        
+        // Start pose detection
+        video.play();
+        detectPose();
+        
+        // Update button states
+        startBtn.textContent = 'Running';
+        resetBtn.disabled = false;
+        
+        // Reset trainer to initial state
+        resetTrainer();
+        
+        console.log('Tricep Pushdown Trainer started successfully');
+    } catch (error) {
+        console.error('Error starting the application:', error);
+        startBtn.disabled = false;
+        startBtn.textContent = 'Start Camera';
+        alert('Error starting the application. Please make sure you have a webcam connected and have granted permission.');
+    }
 }
 
 // Reset the training session
 function resetTrainingSession() {
-  // Reset the form tracking but keep the detection running
-  resetTrainer();
-  
-  // Reset rep counters
-  counter = 0;
-  correctReps = 0;
-  incorrectReps = 0;
-  repCounter.textContent = `Total: ${counter}`;
-  correctCounter.textContent = `Good: ${correctReps}`;
-  incorrectCounter.textContent = `Bad: ${incorrectReps}`;
-  
-  // Reset form issues
-  for (const key in formIssues) {
-    formIssues[key] = 0;
-  }
-  
-  // Reset session data
-  for (const key in sessionData) {
-    sessionData[key] = [];
-  }
-  
-  console.log('Training session reset');
+    counter = 0;
+    correctReps = 0;
+    incorrectReps = 0;
+    repCounter.textContent = `Total: ${counter}`;
+    correctCounter.textContent = `Good: ${correctReps}`;
+    incorrectCounter.textContent = `Bad: ${incorrectReps}`;
+    resetTrainer();
 }
 
 // Add event listeners
 startBtn.addEventListener('click', startApp);
 resetBtn.addEventListener('click', resetTrainingSession);
+
+// Calculate performance score based on rep quality and form issues
+function calculatePerformanceScore() {
+  // Base the score on the ratio of correct reps to total reps
+  let repScore = counter > 0 ? (correctReps / counter) * 100 : 0;
+  
+  // Calculate a form deduction based on the number of form issues
+  const totalFormIssues = Object.values(formIssues).reduce((sum, count) => sum + count, 0);
+  const formIssuesPenalty = totalFormIssues > 0 ? Math.min(25, totalFormIssues) : 0;
+  
+  // Final score calculation (max 100%)
+  let finalScore = Math.max(0, Math.min(100, repScore - formIssuesPenalty));
+  
+  // Round to nearest whole number
+  return Math.round(finalScore);
+}
+
+// Create a results object with all session data
+function createResultsObject() {
+  const performanceScore = calculatePerformanceScore();
+  const currentDate = new Date();
+  
+  return {
+    workoutName: "Tricep Pushdown",
+    date: currentDate.toLocaleDateString(),
+    time: currentDate.toLocaleTimeString(),
+    sets: 1, // Default to 1 set in this implementation
+    reps: {
+      total: counter,
+      correct: correctReps,
+      incorrect: incorrectReps
+    },
+    formIssues: {
+      elbowNotExtended: formIssues.elbow_not_extended,
+      backTooStraight: formIssues.back_too_straight,
+      backTooTilted: formIssues.back_too_tilted,
+      elbowLeaningForward: formIssues.elbow_leaning_forward,
+      elbowSwinging: formIssues.elbow_swinging
+    },
+    performanceScore: performanceScore,
+    sessionId: Date.now().toString(36) + Math.random().toString(36).substr(2)
+  };
+}
+
+// Store session data in localStorage
+function saveSessionData(resultsObject) {
+  try {
+    // Get existing session history or initialize new array
+    let sessionHistory = JSON.parse(localStorage.getItem('exerciseSessionHistory')) || [];
+    
+    // Add new session data
+    sessionHistory.push(resultsObject);
+    
+    // Save back to localStorage (limit to last 20 sessions)
+    if (sessionHistory.length > 20) {
+      sessionHistory = sessionHistory.slice(-20);
+    }
+    
+    localStorage.setItem('exerciseSessionHistory', JSON.stringify(sessionHistory));
+    localStorage.setItem('lastExerciseSession', JSON.stringify(resultsObject));
+    
+    console.log('Session data saved successfully');
+    return true;
+  } catch (error) {
+    console.error('Error saving session data:', error);
+    return false;
+  }
+}
+
+// Flag to prevent multiple downloads
+let downloadInProgress = false;
+
+// Function to generate and download results file
+function generateResultsFile() {
+  // Prevent multiple downloads
+  if (downloadInProgress) {
+    console.log('Download already in progress');
+    return;
+  }
+  
+  downloadInProgress = true;
+  console.log('Generating results file...');
+  
+  // Get complete results data
+  const resultsObject = createResultsObject();
+  
+  // Save to localStorage
+  saveSessionData(resultsObject);
+  
+  // Create formatted content for the text file
+  const content = `Exercise Results:
+------------------------
+Workout: ${resultsObject.workoutName}
+Date: ${resultsObject.date} at ${resultsObject.time}
+Sets: ${resultsObject.sets}
+Total Repetitions: ${resultsObject.reps.total}
+Correct Repetitions: ${resultsObject.reps.correct}
+Incorrect Repetitions: ${resultsObject.reps.incorrect}
+
+Performance Score: ${resultsObject.performanceScore}%
+
+Form Issues:
+------------------------
+Elbow Not Extended: ${resultsObject.formIssues.elbowNotExtended} times
+Back Too Straight: ${resultsObject.formIssues.backTooStraight} times
+Back Too Tilted: ${resultsObject.formIssues.backTooTilted} times
+Elbow Leaning Forward: ${resultsObject.formIssues.elbowLeaningForward} times
+Elbow Swinging: ${resultsObject.formIssues.elbowSwinging} times`;
+  
+  try {
+    // Create a Blob with the JSON data
+    const jsonData = JSON.stringify(resultsObject, null, 2); // Pretty print with 2 spaces
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    
+    // Create a download link and trigger the download
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `exercise_results_${resultsObject.sessionId}.json`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    
+    // Force the download
+    setTimeout(() => {
+      console.log('Triggering download...');
+      a.click();
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        console.log('Download complete');
+        downloadInProgress = false;
+      }, 1000);
+    }, 500);
+  } catch (error) {
+    console.error('Error generating results file:', error);
+    alert('Error generating results file. Please check the console for details.');
+    downloadInProgress = false;
+  }
+}
 
 // Clean up on page unload
 window.addEventListener('beforeunload', () => {

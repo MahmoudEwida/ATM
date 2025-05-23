@@ -338,7 +338,7 @@ function updateFeedbackState(type, condition, text, color) {
   }
 }
 
-// Function to draw feedback in the persistent footer (optimized)
+// Function to draw feedback at bottom of screen with enhanced persistence (optimized)
 function drawFeedback(messages) {
   // Batch DOM updates using requestAnimationFrame for better performance
   requestAnimationFrame(() => {
@@ -356,22 +356,23 @@ function drawFeedback(messages) {
       feedbackHistory.delete(text);
     });
     
-    // Prepare feedback display
+    // Hide feedback if no messages
     if (feedbackHistory.size === 0) {
-      // Keep footer visible but show empty message
-      feedback.innerHTML = '<div class="no-feedback">Ready for feedback</div>';
+      feedback.classList.add('hidden');
       return;
     }
     
-    // Simplified message construction with larger text
+    feedback.classList.remove('hidden');
+    
+    // Simplified message construction
     if (feedbackHistory.size > 0) {
       // Create a document fragment for better performance
       const fragment = document.createDocumentFragment();
       
-      // Convert map to HTML elements - make them more prominent
+      // Convert map to HTML elements
       feedbackHistory.forEach((item, text) => {
         // Simplified opacity calculation
-        const opacity = Math.max(0.5, item.count / FEEDBACK_PERSISTENCE);
+        const opacity = Math.max(0.3, item.count / FEEDBACK_PERSISTENCE);
         
         // Simplified icon selection
         let icon = 'fa-info-circle';
@@ -379,12 +380,10 @@ function drawFeedback(messages) {
         else if (text.includes('Back')) icon = 'fa-exclamation-triangle';
         else if (text.includes('Elbow')) icon = 'fa-hand-paper';
         
-        // Create div with animated entry
+        // Create div directly instead of string concatenation
         const div = document.createElement('div');
-        div.className = 'feedback-item';
         div.style.color = item.color;
         div.style.opacity = opacity;
-        div.style.animation = 'fadeInUp 0.3s ease-out';
         
         const iconEl = document.createElement('i');
         iconEl.className = `fas ${icon}`;

@@ -88,6 +88,7 @@ h1 {
   justify-content: center;
   align-items: center;
   background-color: black;
+  overflow: hidden;
 }
 
 #webcam,
@@ -98,15 +99,16 @@ h1 {
   width: 100%;
   height: 100%;
   border-radius: 12px;
-  object-fit: contain; /* Changed from cover to contain to prevent distortion */
+  object-fit: cover; /* Using cover to fill the container completely */
 }
 
 .fullscreen-mode #webcam,
 .fullscreen-mode #output {
   border-radius: 0;
-  max-height: 100vh;
-  max-height: 100dvh;
-  max-width: 100vw;
+  height: 100%;
+  width: 100%;
+  object-position: center;
+  object-fit: cover;
 }
 
 /* Handle canvas rotation better */
@@ -123,10 +125,29 @@ h1 {
   height: 100%;
 }
 
-/* Fix rotation issues on mobile */
+/* Mobile-specific fixes */
 @media (max-width: 768px) {
   .fullscreen-mode .video-container {
     overflow: hidden;
+  }
+  
+  /* Ensure video and canvas fill the screen on mobile */
+  .fullscreen-mode #webcam,
+  .fullscreen-mode #output {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    transform: none !important;
+  }
+  
+  /* For devices in portrait mode */
+  @media (orientation: portrait) {
+    .fullscreen-mode #webcam,
+    .fullscreen-mode #output {
+      object-fit: cover !important;
+    }
   }
 }
 

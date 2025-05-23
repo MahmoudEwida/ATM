@@ -996,6 +996,14 @@ function handleDetectionLoss() {
 // Track which side is more visible
 let useRightSide = true; // Default to right side
 
+// Update the keypointColors for lower body to use light red
+keypointColors[11] = '#ff6b6b'; // left_hip (light red)
+keypointColors[12] = '#ff6b6b'; // right_hip (light red)
+keypointColors[13] = '#ff6b6b'; // left_knee (light red)
+keypointColors[14] = '#ff6b6b'; // right_knee (light red)
+keypointColors[15] = '#ff6b6b'; // left_ankle (light red)
+keypointColors[16] = '#ff6b6b'; // right_ankle (light red)
+
 // Draw the pose skeleton and keypoints (optimized version)
 function drawPose(pose) {
   if (!pose || !pose.keypoints) return;
@@ -1025,9 +1033,9 @@ function drawPose(pose) {
   // Simplified skeleton drawing
   ctx.lineWidth = 4;
   
-  // Draw essential connections only for performance
-  const essentialConnections = [
-    // Upper body (most important for this exercise)
+  // Draw full body connections including lower body
+  const bodyConnections = [
+    // Upper body
     ['left_shoulder', 'right_shoulder'],
     ['left_shoulder', 'left_elbow'],
     ['right_shoulder', 'right_elbow'],
@@ -1035,10 +1043,16 @@ function drawPose(pose) {
     ['right_elbow', 'right_wrist'],
     // Torso
     ['left_shoulder', 'left_hip'],
-    ['right_shoulder', 'right_hip']
+    ['right_shoulder', 'right_hip'],
+    ['left_hip', 'right_hip'],
+    // Lower body
+    ['left_hip', 'left_knee'],
+    ['right_hip', 'right_knee'],
+    ['left_knee', 'left_ankle'],
+    ['right_knee', 'right_ankle']
   ];
   
-  essentialConnections.forEach(([keypointA, keypointB]) => {
+  bodyConnections.forEach(([keypointA, keypointB]) => {
     const indexA = keypointMap[keypointA];
     const indexB = keypointMap[keypointB];
     
@@ -1050,11 +1064,17 @@ function drawPose(pose) {
       // Simplified side detection
       const isRightSide = keypointA.includes('right') || keypointB.includes('right');
       const isLeftSide = keypointA.includes('left') || keypointB.includes('left');
+      const isLowerBody = keypointA.includes('knee') || keypointB.includes('knee') || 
+                        keypointA.includes('ankle') || keypointB.includes('ankle') || 
+                        (keypointA.includes('hip') && keypointB.includes('hip'));
       
-      // Set color based on which side is more visible
-      if ((useRightSide && isRightSide && !isLeftSide) || 
+      // Set color based on which side is more visible and body part
+      if (isLowerBody) {
+        // Light red for lower body
+        ctx.strokeStyle = '#ff6b6b';
+      } else if ((useRightSide && isRightSide && !isLeftSide) || 
           (!useRightSide && isLeftSide && !isRightSide)) {
-        ctx.strokeStyle = '#00FF00'; // Green for more visible side
+        ctx.strokeStyle = '#00FF00'; // Green for more visible upper body side
       } else {
         ctx.strokeStyle = '#FFFFFF'; // White for less visible or central connections
       }

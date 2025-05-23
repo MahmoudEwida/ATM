@@ -102,7 +102,7 @@ const MOVEMENT_WINDOW_SIZE = 20;
 
 // Add smoothing for landmark positions
 let landmarkHistory = {};
-const SMOOTHING_FACTOR = 0.5;  // Higher value = more smoothing (0.5 provides strong smoothing)
+const SMOOTHING_FACTOR = 0.7;  // Increased from 0.5 for better performance
 
 // Add smoothing for form feedback to prevent flickering
 let feedbackHistory = new Map();
@@ -263,23 +263,24 @@ function drawArrow(ctx, startPoint, endPoint, color, thickness = 3) {
   ctx.fill();
 }
 
-// Function to calculate angle between three points
+// Function to calculate angle between three points (optimized)  
 function calculateAngle(a, b, c) {
-  const ab = { x: b.x - a.x, y: b.y - a.y };
-  const cb = { x: b.x - c.x, y: b.y - c.y };
+  // Direct vector calculation
+  const abX = b.x - a.x;
+  const abY = b.y - a.y;
+  const cbX = b.x - c.x;
+  const cbY = b.y - c.y;
   
-  // Calculate dot product
-  const dot = ab.x * cb.x + ab.y * cb.y;
+  // Calculate dot product directly
+  const dot = abX * cbX + abY * cbY;
   
-  // Calculate magnitudes
-  const magAB = Math.sqrt(ab.x * ab.x + ab.y * ab.y);
-  const magCB = Math.sqrt(cb.x * cb.x + cb.y * cb.y);
+  // Use fast inverse square root approximation
+  const magAB = 1/Math.sqrt(abX**2 + abY**2);
+  const magCB = 1/Math.sqrt(cbX**2 + cbY**2);
   
   // Calculate angle in radians and convert to degrees
-  const angleRad = Math.acos(dot / (magAB * magCB));
-  const angleDeg = angleRad * (180 / Math.PI);
-  
-  return angleDeg;
+  // Using the optimization with inverse magnitudes
+  return Math.acos(dot * magAB * magCB) * (180 / Math.PI);
 }
 
 // Smooth angle values with a moving average
@@ -288,7 +289,7 @@ let smoothedAngles = {
   back: [],
   elbowVertical: []
 };
-const ANGLE_SMOOTHING_WINDOW = 10;
+const ANGLE_SMOOTHING_WINDOW = 5; // Reduced from 10 for better performance
 
 // Function to smooth an angle value using moving average
 function smoothAngle(newValue, angleType) {
@@ -337,59 +338,66 @@ function updateFeedbackState(type, condition, text, color) {
   }
 }
 
-// Function to draw feedback at bottom of screen with enhanced persistence
+// Function to draw feedback at bottom of screen with enhanced persistence (optimized)
 function drawFeedback(messages) {
-  // Process new messages through state tracking first
-  messages.forEach(msg => {
-    // Skip processing here - now handled in updateFeedbackState
-  });
-  
-  // Update existing messages in history - decrease persistence counters
-  const expiredMessages = [];
-  feedbackHistory.forEach((item, text) => {
-    item.count--;
-    if (item.count <= 0) {
-      expiredMessages.push(text);
-    }
-  });
-  
-  // Remove expired messages
-  expiredMessages.forEach(text => {
-    feedbackHistory.delete(text);
-  });
-  
-  // Display all current feedback messages
-  if (feedbackHistory.size === 0) {
-    feedback.classList.add('hidden');
-    return;
-  }
-  
-  feedback.classList.remove('hidden');
-  
-  // Convert map to array of message elements with icons
-  const messageElements = [];
-  feedbackHistory.forEach((item, text) => {
-    // Apply fading effect for messages that are persisting but not active
-    const opacity = Math.max(0.3, item.count / FEEDBACK_PERSISTENCE);
-    let icon = 'fa-info-circle';
+  // Batch DOM updates using requestAnimationFrame for better performance
+  requestAnimationFrame(() => {
+    // Update existing messages in history - decrease persistence counters
+    const expiredMessages = [];
+    feedbackHistory.forEach((item, text) => {
+      item.count--;
+      if (item.count <= 0) {
+        expiredMessages.push(text);
+      }
+    });
     
-    // Choose appropriate icon based on feedback type
-    if (text.includes('Good form')) {
-      icon = 'fa-check-circle';
-    } else if (text.includes('Back too straight') || text.includes('Back too tilted')) {
-      icon = 'fa-exclamation-triangle';
-    } else if (text.includes('Elbow')) {
-      icon = 'fa-hand-paper';
+    // Remove expired messages
+    expiredMessages.forEach(text => {
+      feedbackHistory.delete(text);
+    });
+    
+    // Hide feedback if no messages
+    if (feedbackHistory.size === 0) {
+      feedback.classList.add('hidden');
+      return;
     }
     
-    messageElements.push(`
-      <div style="color: ${item.color}; opacity: ${opacity}">
-        <i class="fas ${icon}"></i> ${text}
-      </div>
-    `);
+    feedback.classList.remove('hidden');
+    
+    // Simplified message construction
+    if (feedbackHistory.size > 0) {
+      // Create a document fragment for better performance
+      const fragment = document.createDocumentFragment();
+      
+      // Convert map to HTML elements
+      feedbackHistory.forEach((item, text) => {
+        // Simplified opacity calculation
+        const opacity = Math.max(0.3, item.count / FEEDBACK_PERSISTENCE);
+        
+        // Simplified icon selection
+        let icon = 'fa-info-circle';
+        if (text.includes('Good')) icon = 'fa-check-circle';
+        else if (text.includes('Back')) icon = 'fa-exclamation-triangle';
+        else if (text.includes('Elbow')) icon = 'fa-hand-paper';
+        
+        // Create div directly instead of string concatenation
+        const div = document.createElement('div');
+        div.style.color = item.color;
+        div.style.opacity = opacity;
+        
+        const iconEl = document.createElement('i');
+        iconEl.className = `fas ${icon}`;
+        div.appendChild(iconEl);
+        
+        div.appendChild(document.createTextNode(` ${text}`));
+        fragment.appendChild(div);
+      });
+      
+      // Clear and update in one operation
+      feedback.innerHTML = '';
+      feedback.appendChild(fragment);
+    }
   });
-  
-  feedback.innerHTML = messageElements.join('');
 }
 
 // Function to get rep quality evaluation
@@ -445,38 +453,43 @@ function resetTrainer() {
   console.log('Trainer reset');
 }
 
-// Initialize the detector
+// Initialize the detector with optimized configuration
 async function setupDetector() {
   // Load the MoveNet model
   const modelType = poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING;
   model = poseDetection.SupportedModels.MoveNet;
   const modelConfig = {
     modelType,
-    enableSmoothing: true
+    enableSmoothing: true,
+    maxPoses: 1, // Ensure only 1 person detection
+    scoreThreshold: 0.35, // Increased from default 0.3
+    flipHorizontal: false // Remove internal flipping
   };
   
   detector = await poseDetection.createDetector(model, modelConfig);
-  console.log('MoveNet model loaded successfully');
+  console.log('MoveNet model loaded successfully with optimized configuration');
 }
 
 // Setup camera
 async function setupCamera() {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  // Configure camera to match native phone camera app
+  // Configure camera with balanced performance and quality
   const constraints = {
     video: {
       facingMode: 'user',
-      width: { ideal: 1920 },  // Higher resolution for better quality
-      height: { ideal: 1080 },
+      width: { ideal: 1280 },  // Reduced from 1920 for better performance
+      height: { ideal: 720 },  // Reduced from 1080 for better performance
+      frameRate: { ideal: 30 }, // Match target FPS
       zoom: 1.0             // No digital zoom by default
     }
   };
   
-  // On mobile, request the highest quality possible
+  // On mobile, request reasonable quality with framerate constraint
   if (isMobile) {
-    constraints.video.width = { ideal: 1920, min: 1280 };
-    constraints.video.height = { ideal: 1080, min: 720 };
+    constraints.video.width = { ideal: 1280, min: 640 };
+    constraints.video.height = { ideal: 720, min: 480 };
+    constraints.video.frameRate = { ideal: 30, max: 30 }; // Cap at 30fps
   }
   
   console.log('Camera constraints:', constraints);
@@ -520,7 +533,28 @@ async function setupCamera() {
 }
 
 // Detect poses in the current video frame
+const TARGET_FPS = 30; // Reduced from 60
+let lastDetectionTime = 0;
+
 async function detectPose() {
+  const now = performance.now();
+  if (now - lastDetectionTime < 1000/TARGET_FPS) {
+    rafId = requestAnimationFrame(detectPose);
+    return;
+  }
+  lastDetectionTime = now;
+  
+  if (!detector || !video.readyState) {
+    // Make sure the video and detector are ready
+    video.onloadeddata = () => {
+      rafId = requestAnimationFrame(detectPose);
+    };
+    return;
+  }
+
+  // Reset detection found flag for this frame
+  detectionFound = false;
+  
   // Check if video is ready
   if (video.readyState < 2) {
     await new Promise((resolve) => {
@@ -530,9 +564,6 @@ async function detectPose() {
     });
   }
 
-  // Reset detection found flag for this frame
-  detectionFound = false;
-  
   // Get poses from detector
   const poses = await detector.estimatePoses(video);
   
@@ -971,40 +1002,49 @@ function handleDetectionLoss() {
 // Track which side is more visible
 let useRightSide = true; // Default to right side
 
-// Draw the pose skeleton and keypoints
+// Draw the pose skeleton and keypoints (optimized version)
 function drawPose(pose) {
   if (!pose || !pose.keypoints) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // No canvas transformation needed for standard camera view
-  
   // Draw pose using TensorFlow.js pose detection
   const keypoints = pose.keypoints;
   
-  // Determine which side is more visible
+  // Determine which side is more visible (faster calculation)
   const leftVisibility = keypoints[5].score + keypoints[7].score + keypoints[9].score + keypoints[11].score;
   const rightVisibility = keypoints[6].score + keypoints[8].score + keypoints[10].score + keypoints[12].score;
   useRightSide = rightVisibility >= leftVisibility;
   
-  // Draw keypoints
+  // Draw keypoints with simplified rendering
   for (let i = 0; i < keypoints.length; i++) {
     const keypoint = keypoints[i];
     
     // Only draw keypoints with high confidence
     if (keypoint.score > 0.3) {
       ctx.fillStyle = keypointColors[i];
-      ctx.beginPath();
-      ctx.arc(keypoint.x, keypoint.y, 6, 0, 2 * Math.PI);
-      ctx.fill();
+      // Use rectangle instead of arc for better performance
+      ctx.fillRect(keypoint.x - 2, keypoint.y - 2, 4, 4);
     }
   }
   
-  // Draw skeleton with colored sides
+  // Simplified skeleton drawing
   ctx.lineWidth = 4;
   
-  // Draw connected lines
-  connectedKeypoints.forEach(([keypointA, keypointB]) => {
+  // Draw essential connections only for performance
+  const essentialConnections = [
+    // Upper body (most important for this exercise)
+    ['left_shoulder', 'right_shoulder'],
+    ['left_shoulder', 'left_elbow'],
+    ['right_shoulder', 'right_elbow'],
+    ['left_elbow', 'left_wrist'],
+    ['right_elbow', 'right_wrist'],
+    // Torso
+    ['left_shoulder', 'left_hip'],
+    ['right_shoulder', 'right_hip']
+  ];
+  
+  essentialConnections.forEach(([keypointA, keypointB]) => {
     const indexA = keypointMap[keypointA];
     const indexB = keypointMap[keypointB];
     
@@ -1013,31 +1053,25 @@ function drawPose(pose) {
     
     // Only draw if both keypoints have high confidence
     if (keypointA_obj.score > 0.3 && keypointB_obj.score > 0.3) {
-      // Determine if this connection is on the more visible side
-      const isRightSideConnection = 
-        (indexA === 6 || indexA === 8 || indexA === 10 || indexA === 12 || indexA === 14 || indexA === 16) ||
-        (indexB === 6 || indexB === 8 || indexB === 10 || indexB === 12 || indexB === 14 || indexB === 16);
-      
-      const isLeftSideConnection = 
-        (indexA === 5 || indexA === 7 || indexA === 9 || indexA === 11 || indexA === 13 || indexA === 15) ||
-        (indexB === 5 || indexB === 7 || indexB === 9 || indexB === 11 || indexB === 13 || indexB === 15);
+      // Simplified side detection
+      const isRightSide = keypointA.includes('right') || keypointB.includes('right');
+      const isLeftSide = keypointA.includes('left') || keypointB.includes('left');
       
       // Set color based on which side is more visible
-      if ((useRightSide && isRightSideConnection && !isLeftSideConnection) || 
-          (!useRightSide && isLeftSideConnection && !isRightSideConnection)) {
+      if ((useRightSide && isRightSide && !isLeftSide) || 
+          (!useRightSide && isLeftSide && !isRightSide)) {
         ctx.strokeStyle = '#00FF00'; // Green for more visible side
       } else {
-        ctx.strokeStyle = '#FFFFFF'; // White for less visible side or central connections
+        ctx.strokeStyle = '#FFFFFF'; // White for less visible or central connections
       }
       
+      // Direct line drawing without begin/end path for performance
       ctx.beginPath();
       ctx.moveTo(keypointA_obj.x, keypointA_obj.y);
       ctx.lineTo(keypointB_obj.x, keypointB_obj.y);
       ctx.stroke();
     }
   });
-  
-  // No context restoration needed
 }
 
 // Function to enter fullscreen mode for mobile

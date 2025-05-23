@@ -569,7 +569,16 @@ async function detectPose() {
 
 // Process detection and track exercise
 function processDetection(keypoints) {
-  // Mark detection as found for this frame
+  // Flip keypoints horizontally to correct camera mirroring
+  keypoints.forEach(keypoint => {
+    // Flip X coordinate (mirroring horizontally)
+    keypoint.x = canvas.width - keypoint.x;
+  });
+  
+  // Update frame counter
+  sessionData.frame_count.push(sessionData.frame_count.length);
+  
+  // Update detection flag
   detectionFound = true;
   detectionLostFrames = 0; // Reset lost frame counter
   

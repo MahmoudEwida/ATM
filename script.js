@@ -463,14 +463,21 @@ async function setupDetector() {
 async function setupCamera() {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  // Simple approach - use environment constraints that work well across devices
+  // Configure camera to match native phone camera app
   const constraints = {
     video: {
       facingMode: 'user',
-      width: { ideal: isMobile ? 720 : 640 },
-      height: { ideal: isMobile ? 1280 : 480 }
+      width: { ideal: 1920 },  // Higher resolution for better quality
+      height: { ideal: 1080 },
+      zoom: 1.0             // No digital zoom by default
     }
   };
+  
+  // On mobile, request the highest quality possible
+  if (isMobile) {
+    constraints.video.width = { ideal: 1920, min: 1280 };
+    constraints.video.height = { ideal: 1080, min: 720 };
+  }
   
   console.log('Camera constraints:', constraints);
 

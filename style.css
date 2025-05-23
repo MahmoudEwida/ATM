@@ -617,69 +617,25 @@ button i {
   font-size: clamp(1rem, 2.5vw, 1.2rem);
 }
 
-/* Persistent footer for feedback */
-.feedback-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 50;
-  padding: 15px;
-  padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  min-height: 80px; /* Always maintain height even when empty */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.fullscreen-mode .feedback-container {
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  z-index: 1000;
-  /* Ensure it's visible on top of all other fullscreen elements */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-}
-
 .feedback-area {
-  color: white;
-  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-  font-weight: 500;
-  width: 100%;
-  max-width: 800px;
-  transition: opacity 0.3s ease;
-}
-
-.feedback-item {
-  margin: 8px 0;
-  padding: 5px 10px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
   border-radius: 8px;
-  display: inline-block;
-  animation: fadeInUp 0.3s ease-out;
-}
-
-.no-feedback {
-  opacity: 0.5;
-  font-style: italic;
-}
-
-/* Animation for feedback items */
-@keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(20px);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0);
-  }
+  padding: clamp(0.6rem, 1.5vw, 1rem);
+  color: white;
+  font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+  z-index: 20;
+  max-width: 90%;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: opacity 0.3s ease;
+  padding-bottom: env(safe-area-inset-bottom, 0.6rem);
 }
 
 /* Completion message styles */

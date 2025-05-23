@@ -461,26 +461,18 @@ async function setupDetector() {
 
 // Setup camera
 async function setupCamera() {
-  // Simple camera setup that works across devices
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  // Basic constraints - on mobile we explicitly request the front camera
+  // Simple approach - use environment constraints that work well across devices
   const constraints = {
     video: {
-      facingMode: 'user'
+      facingMode: 'user',
+      width: { ideal: isMobile ? 720 : 640 },
+      height: { ideal: isMobile ? 1280 : 480 }
     }
   };
   
-  // Only set resolution constraints on mobile devices
-  if (isMobile) {
-    // For mobile, prioritize height over width to get portrait mode
-    constraints.video.height = { min: 720, ideal: 1280, max: 1920 };
-    constraints.video.width = { min: 480, ideal: 720, max: 1080 };
-  } else {
-    // For desktop, use standard resolution
-    constraints.video.width = { ideal: 640 };
-    constraints.video.height = { ideal: 480 };
-  }
+  console.log('Camera constraints:', constraints);
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -488,41 +480,28 @@ async function setupCamera() {
     
     return new Promise((resolve) => {
       video.onloadedmetadata = () => {
-        // Update canvas dimensions to match actual video dimensions
-        // This prevents distortion by using the camera's natural aspect ratio
+        // Get the actual camera track settings
         const videoTrack = stream.getVideoTracks()[0];
         const settings = videoTrack.getSettings();
+        console.log('Camera settings:', settings);
         
-        // Set canvas dimensions to match actual camera resolution
-        canvas.width = settings.width;
-        canvas.height = settings.height;
+        // Reset any previous transformations
+        video.style.transform = '';
+        canvas.style.transform = '';
+        video.style.objectFit = 'cover';
+        canvas.style.objectFit = 'cover';
         
-        // Mobile specific adjustments
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
         
-        if (isMobile) {
-          // Mobile-specific camera adjustments
-          console.log(`Mobile camera dimensions: ${settings.width}x${settings.height}`);
-          
-          // Clear any previous transforms
-          video.style.transform = '';
-          canvas.style.transform = '';
-          video.classList.remove('rotated-video');
-          canvas.classList.remove('rotated-video');
-          
-          // Set object-fit to cover to fill the screen properly
-          video.style.objectFit = 'cover';
-          canvas.style.objectFit = 'cover';
-          
-          // For phones that return landscape video when held in portrait
-          if (window.innerHeight > window.innerWidth && settings.width > settings.height) {
-            console.log('Applying mobile rotation fix');
-            video.classList.add('rotated-video');
-            canvas.classList.add('rotated-video');
-          }
-        }
+        // Fix EXIF orientation issues on mobile devices
+        document.body.classList.add('camera-initialized');
         
-        console.log(`Camera actual resolution: ${settings.width}x${settings.height}`);
+        // Log camera dimensions for debugging
+        console.log(`Camera dimensions: ${canvas.width}x${canvas.height}`);
+        console.log(`Video dimensions: ${video.videoWidth}x${video.videoHeight}`);
+        
         resolve(video);
       };
     });

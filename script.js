@@ -999,13 +999,8 @@ function handleDetectionLoss() {
 // Track which side is more visible
 let useRightSide = true; // Default to right side
 
-// Update the keypointColors for lower body to use light red
-keypointColors[11] = '#ff6b6b'; // left_hip (light red)
-keypointColors[12] = '#ff6b6b'; // right_hip (light red)
-keypointColors[13] = '#ff6b6b'; // left_knee (light red)
-keypointColors[14] = '#ff6b6b'; // right_knee (light red)
-keypointColors[15] = '#ff6b6b'; // left_ankle (light red)
-keypointColors[16] = '#ff6b6b'; // right_ankle (light red)
+// Use the same color for all keypoints
+// No special coloring for lower body
 
 // Draw the pose skeleton and keypoints (optimized version)
 function drawPose(pose) {
@@ -1083,13 +1078,10 @@ function drawPose(pose) {
                         keypointA.includes('ankle') || keypointB.includes('ankle') || 
                         (keypointA.includes('hip') && keypointB.includes('hip'));
       
-      // Set color based on which side is more visible and body part
-      if (isLowerBody) {
-        // Light red for lower body
-        ctx.strokeStyle = '#ff6b6b';
-      } else if ((useRightSide && isRightSide && !isLeftSide) || 
+      // Set color based on which side is more visible
+      if ((useRightSide && isRightSide && !isLeftSide) || 
           (!useRightSide && isLeftSide && !isRightSide)) {
-        ctx.strokeStyle = '#00FF00'; // Green for more visible upper body side
+        ctx.strokeStyle = '#00FF00'; // Green for more visible side
       } else {
         ctx.strokeStyle = '#FFFFFF'; // White for less visible or central connections
       }

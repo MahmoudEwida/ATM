@@ -23,20 +23,21 @@ let detector;
 let model;
 let rafId;
 
-// Thresholds from Python script
+// Thresholds
 const STANDING_ANGLE = 170.0;
-const GOOD_SQUAT_LOWER_ANGLE = 45.0;
-const GOOD_SQUAT_UPPER_ANGLE = 95.0;
-const MIN_REQUIRED_LOWER_ANGLE = 95.0;
-const MIN_REQUIRED_UPPER_ANGLE = 140.0;
-const TOO_DEEP_ANGLE = 35.0;
-const KNEE_CAVING_THRESHOLD = 1.1;
+const GOOD_SQUAT_LOWER_ANGLE = 50.0;
+const GOOD_SQUAT_UPPER_ANGLE = 100.0;
+const MIN_REQUIRED_LOWER_ANGLE = 100.0;
+const MIN_REQUIRED_UPPER_ANGLE = 145.0;
+const TOO_DEEP_ANGLE = 40.0;
+const KNEE_CAVING_THRESHOLD = 1.3;
 const CORRECT_MIN_RATIO = 0.85;
 const CORRECT_MAX_RATIO = 1.61;
 const KNEE_HISTORY_LENGTH = 10;
 const KNEE_CAVING_FRAME_THRESHOLD = 3;
 const MAX_REPS_PER_SESSION = 12;
 const MIN_ANGLE_CHANGE_FOR_REP = 30;
+const STANDING_ANGLE_TOLERANCE = 5.0;
 
 // Rep counting and form tracking
 let repState = 'up';
@@ -58,6 +59,7 @@ let kneeCavingConsecutiveFrames = 0;
 let kneeRatioHistory = [];
 let sessionComplete = false;
 let sessionCompletedTime = 0;
+let previousKneeAngle = 180;
 
 // Detection loss tracking
 let detectionLostFrames = 0;
@@ -91,8 +93,13 @@ let sessionData = {
   rep_feedback: []
 };
 
+// Calibration state
+let isCalibrating = false;
+let calibrationStartTime = 0;
+let calibrationProgress = 0;
+
 // Keypoint colors and connections
-const keypointColors = Array(17).fill('#FF0000');
+const keypointColors = Array(17).fill('#FFFFFF');
 const connectedKeypoints = [
   ['left_hip', 'right_hip'],
   ['left_hip', 'left_knee'], ['left_knee', 'left_ankle'],
@@ -179,18 +186,27 @@ function drawFeedback(messages) {
     feedback.classList.remove('hidden');
     const fragment = document.createDocumentFragment();
     feedbackHistory.forEach((item, text) => {
-      const opacity = Math.max(0.3, item.count / FEEDBACK_PERSISTENCE);
-      let icon = 'fa-info-circle';
-      if (text.includes('Good')) icon = 'fa-check-circle';
-      else if (text.includes('Knees')) icon = 'fa-exclamation-triangle';
-      else if (text.includes('Deep')) icon = 'fa-arrow-down';
+      const opacity = Math.max(0.5, item.count / FEEDBACK_PERSISTENCE);
+      let iconClass = 'fa-info-circle';
+      if (text.includes('Good')) iconClass = 'fa-check-circle';
+      else if (text.includes('Knees')) iconClass = 'fa-exclamation-triangle';
+      else if (text.includes('Deep')) iconClass = 'fa-arrow-down';
+      else if (text.includes('Stand')) iconClass = 'fa-user';
       const div = document.createElement('div');
-      div.style.color = item.color;
+      div.className = 'feedback-item';
       div.style.opacity = opacity;
+      div.style.background = item.color;
       const iconEl = document.createElement('i');
-      iconEl.className = `fas ${icon}`;
+      iconEl.className = `fas ${iconClass}`;
+      const textEl = document.createElement('span');
+      textEl.textContent = text;
       div.appendChild(iconEl);
-      div.appendChild(document.createTextNode(` ${text}`));
+      div.appendChild(textEl);
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'feedback-close';
+      closeBtn.innerHTML = '×';
+      closeBtn.onclick = () => feedbackHistory.delete(text);
+      div.appendChild(closeBtn);
       fragment.appendChild(div);
     });
     feedback.innerHTML = '';
@@ -214,6 +230,75 @@ function drawArrow(ctx, startPoint, endPoint, color, thickness = 3) {
   ctx.lineTo(endPoint.x, endPoint.y);
   ctx.fillStyle = color;
   ctx.fill();
+}
+
+function easeOutQuad(t) {
+  return 1 - (1 - t) * (1 - t);
+}
+
+function drawLoadingBar(progress) {
+  ctx.save();
+  ctx.fillStyle = '#3498db';
+  const barHeight = 20;
+  const barWidth = canvas.width * progress;
+  ctx.fillRect(0, canvas.height - barHeight, barWidth, barHeight);
+  ctx.restore();
+}
+
+async function calibratePose() {
+  if (!detector || !video.readyState || video.readyState < 2) {
+    await new Promise((resolve) => { video.onloadeddata = () => resolve(video); });
+  }
+  const poses = await detector.estimatePoses(video);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  if (poses && poses.length > 0) {
+    const pose = poses[0];
+    if (pose.keypoints && pose.keypoints.length > 0) {
+      const rightHip = pose.keypoints[12];
+      const rightKnee = pose.keypoints[14];
+      const rightAnkle = pose.keypoints[16];
+      const leftAnkle = pose.keypoints[15];
+      const kneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+      const anklesVisible = rightAnkle.score > 0.3 && leftAnkle.score > 0.3;
+      if (
+        Math.abs(kneeAngle - STANDING_ANGLE) <= STANDING_ANGLE_TOLERANCE &&
+        anklesVisible
+      ) {
+        console.log('Calibration successful: User is standing straight with feet visible');
+        return true;
+      } else {
+        feedbackHistory.set('Stand straight with feet visible', { color: 'rgba(255, 165, 0, 0.2)', count: FEEDBACK_PERSISTENCE });
+        drawFeedback();
+      }
+    }
+  }
+  return false;
+}
+
+async function animateLoadingBar() {
+  const duration = 1000;
+  calibrationStartTime = performance.now();
+  function animate(currentTime) {
+    const elapsed = currentTime - calibrationStartTime;
+    calibrationProgress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutQuad(calibrationProgress);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    drawLoadingBar(easedProgress);
+    drawFeedback();
+    if (calibrationProgress < 1) {
+      rafId = requestAnimationFrame(animate);
+    } else {
+      console.log('Loading bar animation complete');
+      isCalibrating = false;
+      startBtn.textContent = 'Running';
+      resetBtn.disabled = false;
+      resetTrainer();
+      detectPose();
+    }
+  }
+  rafId = requestAnimationFrame(animate);
 }
 
 async function setupDetector() {
@@ -322,56 +407,65 @@ function processDetection(keypoints) {
     let status, barColor;
     if (kneeAngle > MIN_REQUIRED_UPPER_ANGLE) {
       status = 'TOO SHALLOW';
-      barColor = '#FFA500';
+      barColor = 'rgba(255, 165, 0, 0.2)';
       currentRepNotDeepEnough = true;
     } else if (kneeAngle >= MIN_REQUIRED_LOWER_ANGLE && kneeAngle <= MIN_REQUIRED_UPPER_ANGLE) {
       status = 'DEEPER!';
-      barColor = '#FF8C00';
+      barColor = 'rgba(255, 165, 0, 0.2)';
       currentRepNotDeepEnough = true;
     } else if (kneeAngle >= GOOD_SQUAT_LOWER_ANGLE && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE) {
       status = 'GOOD!';
-      barColor = '#4CAF50';
+      barColor = 'rgba(76, 175, 80, 0.2)';
       currentRepNotDeepEnough = false;
       currentRepTooDeep = false;
     } else if (kneeAngle < TOO_DEEP_ANGLE) {
       status = 'TOO DEEP';
-      barColor = '#FF0000';
+      barColor = 'rgba(255, 0, 0, 0.2)';
       currentRepTooDeep = true;
     } else {
       status = 'GOOD';
-      barColor = '#FFFF00';
+      barColor = 'rgba(255, 255, 0, 0.2)';
       currentRepNotDeepEnough = false;
     }
+    depthIndicator.style.background = barColor;
     let kneeAnkleRatio = 0;
-    if (leftKnee.score > 0.2 && rightKnee.score > 0.2 && leftAnkle.score > 0.2 && rightAnkle.score > 0.2) {
+    if (
+      leftKnee.score > 0.3 && rightKnee.score > 0.3 &&
+      leftAnkle.score > 0.3 && rightAnkle.score > 0.3
+    ) {
       const kneeWidth = Math.abs(rightKnee.x - leftKnee.x);
       const ankleWidth = Math.abs(rightAnkle.x - leftAnkle.x);
-      kneeAnkleRatio = ankleWidth > 0 ? kneeWidth / ankleWidth : 2.0;
-      console.log(`Knee Width: ${kneeWidth.toFixed(1)}, Ankle Width: ${ankleWidth.toFixed(1)}, Raw Ratio: ${kneeAnkleRatio.toFixed(2)}`);
-      if (kneeAnkleRatio > 0) {
-        kneeRatioHistory.push(kneeAnkleRatio);
-        if (kneeRatioHistory.length > KNEE_HISTORY_LENGTH) {
-          kneeRatioHistory.shift();
-        }
-        const smoothedKneeRatio = kneeRatioHistory.reduce((sum, val) => sum + val, 0) / kneeRatioHistory.length;
-        console.log(`Smoothed Knee Ratio: ${smoothedKneeRatio.toFixed(2)}`);
-        if (smoothedKneeRatio < minKneeRatioInCurrentRep) {
-          minKneeRatioInCurrentRep = smoothedKneeRatio;
-        }
-        let kneeLineColor = '#4CAF50';
-        let kneeStatus = 'GOOD';
-        if (kneeAngle <= MIN_REQUIRED_UPPER_ANGLE && kneeAngle < (STANDING_ANGLE - 10)) {
-          if (smoothedKneeRatio < KNEE_CAVING_THRESHOLD) {
-            kneeLineColor = '#FF0000';
+      if (ankleWidth > 10) {
+        kneeAnkleRatio = kneeWidth / ankleWidth;
+        console.log(`Knee Width: ${kneeWidth.toFixed(1)}, Ankle Width: ${ankleWidth.toFixed(1)}, Raw Ratio: ${kneeAnkleRatio.toFixed(2)}`);
+        if (kneeAnkleRatio > 0) {
+          kneeRatioHistory.push(kneeAnkleRatio);
+          if (kneeRatioHistory.length > KNEE_HISTORY_LENGTH) {
+            kneeRatioHistory.shift();
+          }
+          const smoothedKneeRatio = kneeRatioHistory.reduce((sum, val) => sum + val, 0) / kneeRatioHistory.length;
+          console.log(`Smoothed Knee Ratio: ${smoothedKneeRatio.toFixed(2)}`);
+          if (smoothedKneeRatio < minKneeRatioInCurrentRep) {
+            minKneeRatioInCurrentRep = smoothedKneeRatio;
+          }
+          let kneeLineColor = 'rgba(76, 175, 80, 0.2)';
+          let kneeStatus = 'GOOD';
+          if (
+            kneeAngle <= GOOD_SQUAT_UPPER_ANGLE &&
+            kneeAngle > TOO_DEEP_ANGLE &&
+            kneeAngle < previousKneeAngle &&
+            smoothedKneeRatio < KNEE_CAVING_THRESHOLD
+          ) {
+            kneeLineColor = 'rgba(255, 0, 0, 0.2)';
             kneeStatus = 'BAD';
             kneeCavingConsecutiveFrames++;
-            console.log(`Knee Caving Check: Angle=${kneeAngle.toFixed(1)}°, Smoothed Ratio=${smoothedKneeRatio.toFixed(2)}, Frames=${kneeCavingConsecutiveFrames}`);
+            console.log(`Knee Caving Check: LeftKnee=(${leftKnee.x.toFixed(1)}, ${leftKnee.y.toFixed(1)}), RightKnee=(${rightKnee.x.toFixed(1)}, ${rightKnee.y.toFixed(1)}), Ratio=${smoothedKneeRatio.toFixed(2)}, Angle=${kneeAngle.toFixed(1)}`);
             if (kneeCavingConsecutiveFrames >= KNEE_CAVING_FRAME_THRESHOLD) {
               currentRepKneesCaved = true;
               console.log('Knees caved detected!');
             }
           } else {
-            kneeLineColor = '#4CAF50';
+            kneeLineColor = 'rgba(76, 175, 80, 0.2)';
             kneeStatus = 'GOOD';
             kneeCavingConsecutiveFrames = Math.max(0, kneeCavingConsecutiveFrames - 1);
             if (kneeCavingConsecutiveFrames < KNEE_CAVING_FRAME_THRESHOLD) {
@@ -379,46 +473,49 @@ function processDetection(keypoints) {
               console.log('Knee caving reset');
             }
           }
-        } else {
-          kneeCavingConsecutiveFrames = 0;
-          currentRepKneesCaved = false;
-          console.log('Knee caving counter reset (not in middle of rep or standing)');
-        }
-        ctx.beginPath();
-        ctx.moveTo(leftKnee.x, leftKnee.y);
-        ctx.lineTo(rightKnee.x, rightKnee.y);
-        ctx.strokeStyle = kneeLineColor;
-        ctx.lineWidth = currentRepKneesCaved ? 6 : 4;
-        ctx.stroke();
-        if (smoothedKneeRatio < KNEE_CAVING_THRESHOLD && kneeAngle <= MIN_REQUIRED_UPPER_ANGLE && kneeAngle < (STANDING_ANGLE - 10)) {
-          const idealKneeDistance = ankleWidth * CORRECT_MIN_RATIO * 1.3;
-          const leftIdealX = rightKnee.x - idealKneeDistance;
-          ctx.beginPath();
-          ctx.moveTo(leftIdealX, leftKnee.y);
-          ctx.lineTo(rightKnee.x, rightKnee.y);
-          ctx.strokeStyle = '#4CAF50';
-          ctx.lineWidth = 2;
-          ctx.stroke();
           if (currentRepKneesCaved) {
-            const midY = (leftKnee.y + rightKnee.y) / 2;
-            drawArrow(ctx, { x: leftKnee.x + 10, y: midY }, { x: leftKnee.x - 20, y: midY }, '#FF0000', 4);
-            drawArrow(ctx, { x: rightKnee.x - 10, y: midY }, { x: rightKnee.x + 20, y: midY }, '#FF0000', 4);
+            ctx.beginPath();
+            ctx.moveTo(leftKnee.x, leftKnee.y);
+            ctx.lineTo(rightKnee.x, rightKnee.y);
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.2)';
+            ctx.lineWidth = 6;
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            ctx.moveTo(leftKnee.x, leftKnee.y);
+            ctx.lineTo(rightKnee.x, rightKnee.y);
+            ctx.strokeStyle = 'rgba(76, 175, 80, 0.2)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
           }
+          if (smoothedKneeRatio < KNEE_CAVING_THRESHOLD && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE && kneeAngle > TOO_DEEP_ANGLE) {
+            const idealKneeDistance = ankleWidth * CORRECT_MIN_RATIO * 1.3;
+            const leftIdealX = rightKnee.x - idealKneeDistance;
+            ctx.beginPath();
+            ctx.moveTo(leftIdealX, leftKnee.y);
+            ctx.lineTo(rightKnee.x, rightKnee.y);
+            ctx.strokeStyle = 'rgba(76, 175, 80, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            if (currentRepKneesCaved) {
+              const midY = (leftKnee.y + rightKnee.y) / 2;
+              drawArrow(ctx, { x: leftKnee.x + 10, y: midY }, { x: leftKnee.x - 20, y: midY }, 'rgba(255, 0, 0, 0.2)', 4);
+              drawArrow(ctx, { x: rightKnee.x - 10, y: midY }, { x: rightKnee.x + 20, y: midY }, 'rgba(255, 0, 0, 0.2)', 4);
+            }
+          }
+          sessionData.knee_ratios.push(smoothedKneeRatio);
         }
-        sessionData.knee_ratios.push(smoothedKneeRatio);
+      } else {
+        console.log('Ankle width too small, skipping ratio calculation');
+        kneeAnkleRatio = 2.0;
       }
     }
     sessionData.knee_angles.push(kneeAngle);
     const feedbackMessages = [];
-    updateFeedbackState('too_deep', currentRepTooDeep, 'Squat too deep!', '#FF0000');
-    updateFeedbackState('not_deep_enough', currentRepNotDeepEnough, 'Squat deeper!', '#FFA500');
-    updateFeedbackState('knees_caving', currentRepKneesCaved && kneeAngle <= MIN_REQUIRED_UPPER_ANGLE && kneeAngle < (STANDING_ANGLE - 10), 'Push knees outward!', '#FF0000');
-    updateFeedbackState('good_form', !currentRepTooDeep && !currentRepNotDeepEnough && !currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE, 'Good form!', '#4CAF50');
-    if (currentRepKneesCaved && kneeAngle <= MIN_REQUIRED_UPPER_ANGLE && kneeAngle < (STANDING_ANGLE - 10)) {
-      ctx.font = '24px Arial';
-      ctx.fillStyle = '#FF0000';
-      ctx.fillText('KNEES CAVING IN!', canvas.width / 2 - 100, 50);
-    }
+    updateFeedbackState('too_deep', currentRepTooDeep, 'Squat too deep!', 'rgba(255, 0, 0, 0.2)');
+    updateFeedbackState('not_deep_enough', currentRepNotDeepEnough, 'Squat deeper!', 'rgba(255, 165, 0, 0.2)');
+    updateFeedbackState('knees_caving', currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE && kneeAngle > TOO_DEEP_ANGLE, 'Push knees outward!', 'rgba(255, 0, 0, 0.2)');
+    updateFeedbackState('good_form', !currentRepTooDeep && !currentRepNotDeepEnough && !currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE, 'Good form!', 'rgba(76, 175, 80, 0.2)');
     const angleChange = maxAngleInCurrentRep - minAngleInCurrentRep;
     if (!repCounted && kneeAngle < (GOOD_SQUAT_UPPER_ANGLE - 10) && angleChange >= MIN_ANGLE_CHANGE_FOR_REP && !sessionComplete) {
       let isIncorrect = false;
@@ -458,7 +555,7 @@ function processDetection(keypoints) {
       if (counter >= MAX_REPS_PER_SESSION && !sessionComplete) {
         sessionComplete = true;
         sessionCompletedTime = Date.now();
-        feedbackHistory.set('Session complete! Take rest.', { color: '#FF0000', count: FEEDBACK_PERSISTENCE * 2 });
+        feedbackHistory.set('Session complete! Take rest.', { color: 'rgba(255, 0, 0, 0.2)', count: FEEDBACK_PERSISTENCE * 2 });
         console.log('Session complete!');
       }
       minAngleInCurrentRep = 180;
@@ -475,6 +572,7 @@ function processDetection(keypoints) {
     if (incorrectRepCounted && kneeAngle > (STANDING_ANGLE - 10)) {
       incorrectRepCounted = false;
     }
+    previousKneeAngle = kneeAngle;
     drawFeedback(feedbackMessages);
   } else {
     console.log(`Detection weak: Visible landmarks = ${visibleLandmarks.length}/${requiredLandmarks.length}`);
@@ -507,7 +605,7 @@ function drawPose(pose) {
     const keypointA_obj = keypoints[indexA];
     const keypointB_obj = keypoints[indexB];
     if (keypointA_obj.score > 0.2 && keypointB_obj.score > 0.2) {
-      ctx.strokeStyle = '#00FF00';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
       ctx.beginPath();
       ctx.moveTo(keypointA_obj.x, keypointA_obj.y);
       ctx.lineTo(keypointB_obj.x, keypointB_obj.y);
@@ -548,6 +646,7 @@ function resetTrainer() {
     rep_knee_angles: [],
     rep_feedback: []
   };
+  previousKneeAngle = 180;
   console.log('Trainer reset');
 }
 
@@ -587,11 +686,17 @@ async function startApp() {
     document.body.classList.add('camera-active');
     enterFullscreenMode();
     video.play();
-    detectPose();
-    startBtn.textContent = "Running";
-    resetBtn.disabled = false;
-    resetTrainer();
-    console.log('Squat Trainer started successfully');
+    isCalibrating = true;
+    feedbackHistory.set('Stand straight with feet visible', { color: 'rgba(255, 165, 0, 0.2)', count: FEEDBACK_PERSISTENCE });
+    async function checkCalibration() {
+      if (await calibratePose()) {
+        await animateLoadingBar();
+      } else {
+        rafId = requestAnimationFrame(checkCalibration);
+      }
+    }
+    rafId = requestAnimationFrame(checkCalibration);
+    console.log('Squat Trainer started, awaiting calibration');
   } catch (error) {
     console.error('Error starting the application:', error);
     startBtn.disabled = false;

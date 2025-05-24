@@ -37,7 +37,7 @@ const KNEE_HISTORY_LENGTH = 10;
 const KNEE_CAVING_FRAME_THRESHOLD = 3;
 const MAX_REPS_PER_SESSION = 12;
 const MIN_ANGLE_CHANGE_FOR_REP = 30;
-const STANDING_ANGLE_TOLERANCE = 5.0;
+const STANDING_ANGLE_TOLERANCE = 5.0; // Tolerance for calibration
 
 // Rep counting and form tracking
 let repState = 'up';
@@ -99,7 +99,7 @@ let calibrationStartTime = 0;
 let calibrationProgress = 0;
 
 // Keypoint colors and connections
-const keypointColors = Array(17).fill('#FFFFFF');
+const keypointColors = Array(17).fill('#FF0000');
 const connectedKeypoints = [
   ['left_hip', 'right_hip'],
   ['left_hip', 'left_knee'], ['left_knee', 'left_ankle'],
@@ -186,27 +186,19 @@ function drawFeedback(messages) {
     feedback.classList.remove('hidden');
     const fragment = document.createDocumentFragment();
     feedbackHistory.forEach((item, text) => {
-      const opacity = Math.max(0.5, item.count / FEEDBACK_PERSISTENCE);
-      let iconClass = 'fa-info-circle';
-      if (text.includes('Good')) iconClass = 'fa-check-circle';
-      else if (text.includes('Knees')) iconClass = 'fa-exclamation-triangle';
-      else if (text.includes('Deep')) iconClass = 'fa-arrow-down';
-      else if (text.includes('Stand')) iconClass = 'fa-user';
+      const opacity = Math.max(0.3, item.count / FEEDBACK_PERSISTENCE);
+      let icon = 'fa-info-circle';
+      if (text.includes('Good')) icon = 'fa-check-circle';
+      else if (text.includes('Knees')) icon = 'fa-exclamation-triangle';
+      else if (text.includes('Deep')) icon = 'fa-arrow-down';
+      else if (text.includes('Stand')) icon = 'fa-user';
       const div = document.createElement('div');
-      div.className = 'feedback-item';
+      div.style.color = item.color;
       div.style.opacity = opacity;
-      div.style.background = item.color;
       const iconEl = document.createElement('i');
-      iconEl.className = `fas ${iconClass}`;
-      const textEl = document.createElement('span');
-      textEl.textContent = text;
+      iconEl.className = `fas ${icon}`;
       div.appendChild(iconEl);
-      div.appendChild(textEl);
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'feedback-close';
-      closeBtn.innerHTML = '×';
-      closeBtn.onclick = () => feedbackHistory.delete(text);
-      div.appendChild(closeBtn);
+      div.appendChild(document.createTextNode(` ${text}`));
       fragment.appendChild(div);
     });
     feedback.innerHTML = '';
@@ -233,12 +225,12 @@ function drawArrow(ctx, startPoint, endPoint, color, thickness = 3) {
 }
 
 function easeOutQuad(t) {
-  return 1 - (1 - t) * (1 - t);
+  return 1 - (1 - t) * (1 - t); // Easing function for fast start, slow end
 }
 
 function drawLoadingBar(progress) {
   ctx.save();
-  ctx.fillStyle = '#3498db';
+  ctx.fillStyle = '#4CAF50';
   const barHeight = 20;
   const barWidth = canvas.width * progress;
   ctx.fillRect(0, canvas.height - barHeight, barWidth, barHeight);
@@ -268,7 +260,7 @@ async function calibratePose() {
         console.log('Calibration successful: User is standing straight with feet visible');
         return true;
       } else {
-        feedbackHistory.set('Stand straight with feet visible', { color: 'rgba(255, 165, 0, 0.2)', count: FEEDBACK_PERSISTENCE });
+        feedbackHistory.set('Stand straight with feet visible', { color: '#FFA500', count: FEEDBACK_PERSISTENCE });
         drawFeedback();
       }
     }
@@ -277,7 +269,7 @@ async function calibratePose() {
 }
 
 async function animateLoadingBar() {
-  const duration = 1000;
+  const duration = 1000; // 1 second
   calibrationStartTime = performance.now();
   function animate(currentTime) {
     const elapsed = currentTime - calibrationStartTime;
@@ -407,24 +399,24 @@ function processDetection(keypoints) {
     let status, barColor;
     if (kneeAngle > MIN_REQUIRED_UPPER_ANGLE) {
       status = 'TOO SHALLOW';
-      barColor = 'rgba(255, 165, 0, 0.2)';
+      barColor = '#FFA500';
       currentRepNotDeepEnough = true;
     } else if (kneeAngle >= MIN_REQUIRED_LOWER_ANGLE && kneeAngle <= MIN_REQUIRED_UPPER_ANGLE) {
       status = 'DEEPER!';
-      barColor = 'rgba(255, 165, 0, 0.2)';
+      barColor = '#FF8C00';
       currentRepNotDeepEnough = true;
     } else if (kneeAngle >= GOOD_SQUAT_LOWER_ANGLE && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE) {
       status = 'GOOD!';
-      barColor = 'rgba(76, 175, 80, 0.2)';
+      barColor = '#4CAF50';
       currentRepNotDeepEnough = false;
       currentRepTooDeep = false;
     } else if (kneeAngle < TOO_DEEP_ANGLE) {
       status = 'TOO DEEP';
-      barColor = 'rgba(255, 0, 0, 0.2)';
+      barColor = '#FF0000';
       currentRepTooDeep = true;
     } else {
       status = 'GOOD';
-      barColor = 'rgba(255, 255, 0, 0.2)';
+      barColor = '#FFFF00';
       currentRepNotDeepEnough = false;
     }
     depthIndicator.style.background = barColor;
@@ -448,7 +440,7 @@ function processDetection(keypoints) {
           if (smoothedKneeRatio < minKneeRatioInCurrentRep) {
             minKneeRatioInCurrentRep = smoothedKneeRatio;
           }
-          let kneeLineColor = 'rgba(76, 175, 80, 0.2)';
+          let kneeLineColor = '#4CAF50';
           let kneeStatus = 'GOOD';
           if (
             kneeAngle <= GOOD_SQUAT_UPPER_ANGLE &&
@@ -456,7 +448,7 @@ function processDetection(keypoints) {
             kneeAngle < previousKneeAngle &&
             smoothedKneeRatio < KNEE_CAVING_THRESHOLD
           ) {
-            kneeLineColor = 'rgba(255, 0, 0, 0.2)';
+            kneeLineColor = '#FF0000';
             kneeStatus = 'BAD';
             kneeCavingConsecutiveFrames++;
             console.log(`Knee Caving Check: LeftKnee=(${leftKnee.x.toFixed(1)}, ${leftKnee.y.toFixed(1)}), RightKnee=(${rightKnee.x.toFixed(1)}, ${rightKnee.y.toFixed(1)}), Ratio=${smoothedKneeRatio.toFixed(2)}, Angle=${kneeAngle.toFixed(1)}`);
@@ -465,7 +457,7 @@ function processDetection(keypoints) {
               console.log('Knees caved detected!');
             }
           } else {
-            kneeLineColor = 'rgba(76, 175, 80, 0.2)';
+            kneeLineColor = '#4CAF50';
             kneeStatus = 'GOOD';
             kneeCavingConsecutiveFrames = Math.max(0, kneeCavingConsecutiveFrames - 1);
             if (kneeCavingConsecutiveFrames < KNEE_CAVING_FRAME_THRESHOLD) {
@@ -477,14 +469,17 @@ function processDetection(keypoints) {
             ctx.beginPath();
             ctx.moveTo(leftKnee.x, leftKnee.y);
             ctx.lineTo(rightKnee.x, rightKnee.y);
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.2)';
+            ctx.strokeStyle = '#FF0000';
             ctx.lineWidth = 6;
             ctx.stroke();
+            ctx.font = '20px Arial';
+            ctx.fillStyle = '#FF0000';
+            ctx.fillText('Knees Caving', (leftKnee.x + rightKnee.x) / 2 - 50, leftKnee.y - 10);
           } else {
             ctx.beginPath();
             ctx.moveTo(leftKnee.x, leftKnee.y);
             ctx.lineTo(rightKnee.x, rightKnee.y);
-            ctx.strokeStyle = 'rgba(76, 175, 80, 0.2)';
+            ctx.strokeStyle = '#4CAF50';
             ctx.lineWidth = 4;
             ctx.stroke();
           }
@@ -494,13 +489,13 @@ function processDetection(keypoints) {
             ctx.beginPath();
             ctx.moveTo(leftIdealX, leftKnee.y);
             ctx.lineTo(rightKnee.x, rightKnee.y);
-            ctx.strokeStyle = 'rgba(76, 175, 80, 0.2)';
+            ctx.strokeStyle = '#4CAF50';
             ctx.lineWidth = 2;
             ctx.stroke();
             if (currentRepKneesCaved) {
               const midY = (leftKnee.y + rightKnee.y) / 2;
-              drawArrow(ctx, { x: leftKnee.x + 10, y: midY }, { x: leftKnee.x - 20, y: midY }, 'rgba(255, 0, 0, 0.2)', 4);
-              drawArrow(ctx, { x: rightKnee.x - 10, y: midY }, { x: rightKnee.x + 20, y: midY }, 'rgba(255, 0, 0, 0.2)', 4);
+              drawArrow(ctx, { x: leftKnee.x + 10, y: midY }, { x: leftKnee.x - 20, y: midY }, '#FF0000', 4);
+              drawArrow(ctx, { x: rightKnee.x - 10, y: midY }, { x: rightKnee.x + 20, y: midY }, '#FF0000', 4);
             }
           }
           sessionData.knee_ratios.push(smoothedKneeRatio);
@@ -512,10 +507,15 @@ function processDetection(keypoints) {
     }
     sessionData.knee_angles.push(kneeAngle);
     const feedbackMessages = [];
-    updateFeedbackState('too_deep', currentRepTooDeep, 'Squat too deep!', 'rgba(255, 0, 0, 0.2)');
-    updateFeedbackState('not_deep_enough', currentRepNotDeepEnough, 'Squat deeper!', 'rgba(255, 165, 0, 0.2)');
-    updateFeedbackState('knees_caving', currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE && kneeAngle > TOO_DEEP_ANGLE, 'Push knees outward!', 'rgba(255, 0, 0, 0.2)');
-    updateFeedbackState('good_form', !currentRepTooDeep && !currentRepNotDeepEnough && !currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE, 'Good form!', 'rgba(76, 175, 80, 0.2)');
+    updateFeedbackState('too_deep', currentRepTooDeep, 'Squat too deep!', '#FF0000');
+    updateFeedbackState('not_deep_enough', currentRepNotDeepEnough, 'Squat deeper!', '#FFA500');
+    updateFeedbackState('knees_caving', currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE && kneeAngle > TOO_DEEP_ANGLE, 'Push knees outward!', '#FF0000');
+    updateFeedbackState('good_form', !currentRepTooDeep && !currentRepNotDeepEnough && !currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE, 'Good form!', '#4CAF50');
+    if (currentRepKneesCaved && kneeAngle <= GOOD_SQUAT_UPPER_ANGLE && kneeAngle > TOO_DEEP_ANGLE) {
+      ctx.font = '24px Arial';
+      ctx.fillStyle = '#FF0000';
+      ctx.fillText('KNEES CAVING IN!', canvas.width / 2 - 100, 50);
+    }
     const angleChange = maxAngleInCurrentRep - minAngleInCurrentRep;
     if (!repCounted && kneeAngle < (GOOD_SQUAT_UPPER_ANGLE - 10) && angleChange >= MIN_ANGLE_CHANGE_FOR_REP && !sessionComplete) {
       let isIncorrect = false;
@@ -555,7 +555,7 @@ function processDetection(keypoints) {
       if (counter >= MAX_REPS_PER_SESSION && !sessionComplete) {
         sessionComplete = true;
         sessionCompletedTime = Date.now();
-        feedbackHistory.set('Session complete! Take rest.', { color: 'rgba(255, 0, 0, 0.2)', count: FEEDBACK_PERSISTENCE * 2 });
+        feedbackHistory.set('Session complete! Take rest.', { color: '#FF0000', count: FEEDBACK_PERSISTENCE * 2 });
         console.log('Session complete!');
       }
       minAngleInCurrentRep = 180;
@@ -605,7 +605,7 @@ function drawPose(pose) {
     const keypointA_obj = keypoints[indexA];
     const keypointB_obj = keypoints[indexB];
     if (keypointA_obj.score > 0.2 && keypointB_obj.score > 0.2) {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.strokeStyle = '#00FF00';
       ctx.beginPath();
       ctx.moveTo(keypointA_obj.x, keypointA_obj.y);
       ctx.lineTo(keypointB_obj.x, keypointB_obj.y);
@@ -687,7 +687,7 @@ async function startApp() {
     enterFullscreenMode();
     video.play();
     isCalibrating = true;
-    feedbackHistory.set('Stand straight with feet visible', { color: 'rgba(255, 165, 0, 0.2)', count: FEEDBACK_PERSISTENCE });
+    feedbackHistory.set('Stand straight with feet visible', { color: '#FFA500', count: FEEDBACK_PERSISTENCE });
     async function checkCalibration() {
       if (await calibratePose()) {
         await animateLoadingBar();

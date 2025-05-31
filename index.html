@@ -3,47 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squat Trainer</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Bicep Curl Trainer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0/dist/pose-detection.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Squat Trainer</h1>
+        <h1>Bicep Curl Trainer</h1>
         <div class="video-container">
             <video id="webcam" autoplay playsinline></video>
             <canvas id="output"></canvas>
-            <div id="depth-bar" class="depth-bar hidden">
-                <div class="depth-bar-section too-deep"></div>
-                <div class="depth-bar-section good"></div>
-                <div class="depth-bar-section min-required"></div>
-                <div class="depth-bar-section too-shallow"></div>
-                <div id="depth-indicator" class="depth-indicator"></div>
-            </div>
             <div id="detection-warning" class="overlay hidden">Detection lost! Please adjust position.</div>
-            <div id="counter-container" class="counter-container hidden">
-                <div id="rep-counter" class="counter">Total: 0</div>
-                <div id="correct-counter" class="counter correct">Good: 0</div>
-                <div id="incorrect-counter" class="counter incorrect">Bad: 0</div>
+            <div class="counter-container" id="counter-container">
+                <div class="counter" id="rep-counter">Total: 0</div>
+                <div class="counter" id="bad-reps-counter">Bad Reps: 0</div>
             </div>
-            <div id="feedback" class="overlay feedback-area hidden"></div>
-            <button id="exitFullscreenBtn" class="exit-fullscreen-btn hidden"><i class="fas fa-times"></i></button>
+            <div class="feedback-area hidden" id="feedback"></div>
+            <button class="exit-fullscreen-btn hidden" id="exitFullscreenBtn"><i class="fas fa-times"></i></button>
         </div>
         <div class="controls">
-            <button id="startBtn"><i class="fas fa-play"></i> Start Camera</button>
-            <button id="resetBtn" disabled><i class="fas fa-redo"></i> Reset Training</button>
+            <button class="back-button" id="mainBackBtn"><i class="fas fa-arrow-left"></i> Back</button>
+            <button id="startBtn">Start Camera</button>
         </div>
         <div class="instructions">
             <h2>How to Use</h2>
             <ol>
                 <li>Click "Start Camera" to begin.</li>
-                <li>Stand in front of the camera, facing forward.</li>
-                <li>Perform squats, keeping knees aligned with feet.</li>
-                <li>Aim for the green depth zone on the bar.</li>
-                <li>The AI will count reps and provide form feedback.</li>
+                <li>Stand sideways to the camera with your arm extended down.</li>
+                <li>Perform bicep curls, keeping your elbow stable and close to your body.</li>
+                <li>Follow on-screen feedback to avoid swinging and maintain proper form.</li>
             </ol>
+        </div>
+        <div class="session-complete hidden" id="sessionComplete">
+            <div class="session-complete-content">
+                <h2>Session Complete!</h2>
+                <div class="stats-container">
+                    <div class="stat-row">
+                        <span class="stat-label">Total Reps:</span>
+                        <span class="stat-value" id="final-total-reps">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Good Form:</span>
+                        <span class="stat-value good" id="final-good-form">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Need Improvement:</span>
+                        <span class="stat-value bad" id="final-bad-form">0</span>
+                    </div>
+                </div>
+                <div class="form-issues">
+                    <h3>Form Issues</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Elbow Swinging:</span>
+                        <span class="stat-value bad" id="elbow-swinging-count">0</span>
+                    </div>
+                </div>
+                <div class="performance-score">
+                    <span class="stat-label">Performance Score:</span>
+                    <span class="stat-value" id="final-score">0%</span>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="nav-btn next-btn" id="nextBtn">Next</button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>

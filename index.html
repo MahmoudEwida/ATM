@@ -10,26 +10,11 @@
             padding: 0;
             box-sizing: border-box;
         }
-        :root {
-            --color-base: #DDDDDD;
-            --color-dark: #222831;
-            --color-primary: #30475E;
-            --color-accent: #F05454;
-
-            --base-10: rgba(221, 221, 221, 0.1);
-            --base-20: rgba(221, 221, 221, 0.2);
-
-            --accent-10: rgba(240, 84, 84, 0.1);
-            --accent-20: rgba(240, 84, 84, 0.2);
-            --accent-30: rgba(240, 84, 84, 0.3);
-            --accent-40: rgba(240, 84, 84, 0.4);
-            --accent-50: rgba(240, 84, 84, 0.5);
-        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-primary) 100%);
-            color: var(--color-base);
+            background: linear-gradient(135deg, #222831 0%, #30475E 100%);
+            color: #DDDDDD;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -40,21 +25,21 @@
         .container {
             width: 100%;
             max-width: 800px;
-            background: var(--color-dark);
+            background: #222831;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-dark));
+            background: linear-gradient(135deg, #30475E, #222831);
             padding: 30px;
             text-align: center;
-            border-bottom: 3px solid var(--color-accent);
+            border-bottom: 3px solid #F05454;
         }
 
         .header h1 {
-            color: var(--color-base);
+            color: #DDDDDD;
             font-size: 2em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -62,7 +47,7 @@
         }
 
         .progress-bar {
-            background: var(--base-10);
+            background: rgba(221, 221, 221, 0.1);
             height: 8px;
             border-radius: 4px;
             margin-top: 20px;
@@ -70,25 +55,25 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, var(--color-accent), var(--color-base));
+            background: linear-gradient(90deg, #F05454, #DDDDDD);
             height: 100%;
             border-radius: 4px;
             transition: width 0.5s ease;
-            box-shadow: 0 0 10px var(--accent-50);
+            box-shadow: 0 0 10px rgba(240, 84, 84, 0.5);
         }
 
         .step-indicators {
             display: flex;
             justify-content: space-between;
             padding: 20px 30px;
-            background: var(--color-primary);
+            background: #30475E;
         }
 
         .step-dot {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--base-20);
+            background: rgba(221, 221, 221, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -98,15 +83,15 @@
         }
 
         .step-dot.active {
-            background: var(--color-accent);
-            border-color: var(--color-base);
+            background: #F05454;
+            border-color: #DDDDDD;
             transform: scale(1.2);
-            box-shadow: 0 0 20px var(--accent-50);
+            box-shadow: 0 0 20px rgba(240, 84, 84, 0.5);
         }
 
         .step-dot.completed {
-            background: var(--color-base);
-            color: var(--color-dark);
+            background: #DDDDDD;
+            color: #222831;
         }
 
         .content {
@@ -136,7 +121,7 @@
         }
 
         .step-title {
-            color: var(--color-accent);
+            color: #F05454;
             font-size: 1.8em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -144,7 +129,7 @@
         }
 
         .step-subtitle {
-            color: var(--color-base);
+            color: #DDDDDD;
             opacity: 0.8;
             margin-bottom: 30px;
             font-size: 1.1em;
@@ -158,7 +143,7 @@
         }
 
         .option-card {
-            background: var(--color-primary);
+            background: #30475E;
             padding: 20px;
             border-radius: 15px;
             border: 2px solid transparent;
@@ -175,7 +160,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-20), transparent);
+            background: linear-gradient(90deg, transparent, rgba(240, 84, 84, 0.2), transparent);
             transition: left 0.5s ease;
         }
 
@@ -185,24 +170,24 @@
 
         .option-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px var(--accent-30);
-            border-color: var(--color-accent);
+            box-shadow: 0 10px 30px rgba(240, 84, 84, 0.3);
+            border-color: #F05454;
         }
 
         .option-card.selected {
-            background: linear-gradient(135deg, var(--color-primary), var(--accent-20));
-            border-color: var(--color-accent);
-            box-shadow: 0 0 20px var(--accent-30);
+            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            border-color: #F05454;
+            box-shadow: 0 0 20px rgba(240, 84, 84, 0.3);
         }
 
         .option-card h3 {
-            color: var(--color-accent);
+            color: #F05454;
             margin-bottom: 10px;
             font-size: 1.2em;
         }
 
         .option-card p {
-            color: var(--color-base);
+            color: #DDDDDD;
             opacity: 0.9;
             font-size: 0.95em;
         }
@@ -215,7 +200,7 @@
         }
 
         .radio-option {
-            background: var(--color-primary);
+            background: #30475E;
             padding: 20px;
             border-radius: 10px;
             display: flex;
@@ -226,7 +211,7 @@
         }
 
         .radio-option:hover {
-            border-color: var(--color-accent);
+            border-color: #F05454;
             transform: translateX(5px);
         }
 
@@ -234,12 +219,12 @@
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            accent-color: var(--color-accent);
+            accent-color: #F05454;
         }
 
         .radio-option.selected {
-            background: linear-gradient(135deg, var(--color-primary), var(--accent-20));
-            border-color: var(--color-accent);
+            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            border-color: #F05454;
         }
 
         .checkbox-group {
@@ -250,7 +235,7 @@
         }
 
         .checkbox-option {
-            background: var(--color-primary);
+            background: #30475E;
             padding: 15px 20px;
             border-radius: 10px;
             display: flex;
@@ -261,24 +246,24 @@
         }
 
         .checkbox-option:hover {
-            border-color: var(--color-accent);
+            border-color: #F05454;
         }
 
         .checkbox-option input[type="checkbox"] {
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            accent-color: var(--color-accent);
+            accent-color: #F05454;
         }
 
         .checkbox-option.checked {
-            background: linear-gradient(135deg, var(--color-primary), var(--accent-20));
-            border-color: var(--color-accent);
+            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            border-color: #F05454;
         }
 
         .warning-box {
-            background: var(--accent-10);
-            border: 2px solid var(--color-accent);
+            background: rgba(240, 84, 84, 0.1);
+            border: 2px solid #F05454;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
@@ -289,12 +274,12 @@
 
         .warning-icon {
             font-size: 2em;
-            color: var(--color-accent);
+            color: #F05454;
         }
 
         .info-box {
-            background: var(--base-10);
-            border-left: 4px solid var(--color-accent);
+            background: rgba(221, 221, 221, 0.1);
+            border-left: 4px solid #F05454;
             padding: 15px 20px;
             margin-bottom: 20px;
             border-radius: 5px;
@@ -320,8 +305,8 @@
         }
 
         .btn-next {
-            background: var(--color-accent);
-            color: var(--color-base);
+            background: #F05454;
+            color: #DDDDDD;
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -332,25 +317,25 @@
         }
 
         .btn-next.enabled:hover {
-            background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
+            background: linear-gradient(135deg, #F05454, #30475E);
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px var(--accent-40);
+            box-shadow: 0 10px 30px rgba(240, 84, 84, 0.4);
         }
 
         .btn-back {
-            background: var(--color-primary);
-            color: var(--color-base);
-            border: 2px solid var(--color-base);
+            background: #30475E;
+            color: #DDDDDD;
+            border: 2px solid #DDDDDD;
         }
 
         .btn-back:hover {
-            background: var(--color-base);
-            color: var(--color-dark);
+            background: #DDDDDD;
+            color: #222831;
             transform: translateY(-2px);
         }
 
         .summary-section {
-            background: var(--color-primary);
+            background: #30475E;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
@@ -360,7 +345,7 @@
             display: flex;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid var(--base-10);
+            border-bottom: 1px solid rgba(221, 221, 221, 0.1);
         }
 
         .summary-item:last-child {
@@ -369,12 +354,12 @@
 
         .summary-label {
             font-weight: bold;
-            color: var(--color-accent);
+            color: #F05454;
             min-width: 150px;
         }
 
         .summary-value {
-            color: var(--color-base);
+            color: #DDDDDD;
         }
 
         .final-checklist {
@@ -385,7 +370,7 @@
         }
 
         .checklist-item {
-            background: var(--base-10);
+            background: rgba(221, 221, 221, 0.1);
             padding: 15px;
             border-radius: 8px;
             display: flex;
@@ -394,12 +379,12 @@
         }
 
         .checklist-item.complete {
-            background: var(--accent-20);
-            border: 1px solid var(--color-accent);
+            background: rgba(240, 84, 84, 0.2);
+            border: 1px solid #F05454;
         }
 
         .check-icon {
-            color: var(--color-accent);
+            color: #F05454;
             font-size: 1.2em;
         }
 
@@ -595,7 +580,7 @@
                     <strong>Target levels:</strong> Enter your identified target zones
                 </div>
 
-                <input type="text" id="targetInput" placeholder="Enter target level (e.g., 1.2500)" style="width: 100%; padding: 12px; background: var(--color-primary); border: 2px solid var(--color-base); border-radius: 8px; color: var(--color-base); font-size: 1.1em; margin-bottom: 20px;">
+                <input type="text" id="targetInput" placeholder="Enter target level (e.g., 1.2500)" style="width: 100%; padding: 12px; background: #30475E; border: 2px solid #DDDDDD; border-radius: 8px; color: #DDDDDD; font-size: 1.1em; margin-bottom: 20px;">
 
                 <div class="button-group">
                     <button class="btn btn-back" onclick="goToStep(3)">← Back</button>
@@ -646,7 +631,7 @@
                 <p class="step-subtitle">Review your setup and execute with precision</p>
 
                 <div class="summary-section">
-                    <h3 style="color: var(--color-accent); margin-bottom: 20px;">Your Trading Setup:</h3>
+                    <h3 style="color: #F05454; margin-bottom: 20px;">Your Trading Setup:</h3>
                     <div class="summary-item">
                         <span class="summary-label">HTF Bias:</span>
                         <span class="summary-value" id="summaryBias">-</span>
@@ -677,7 +662,7 @@
                     <strong>PRECISE ENTRY (3ALATOOL):</strong> Enter at the FVG/IFVG with minimized stop loss placement
                 </div>
 
-                <h3 style="color: var(--color-accent); margin-top: 30px; margin-bottom: 15px;">Final Checklist:</h3>
+                <h3 style="color: #F05454; margin-top: 30px; margin-bottom: 15px;">Final Checklist:</h3>
                 <div class="final-checklist">
                     <div class="checklist-item" id="check1">
                         <span class="check-icon">✓</span>
@@ -705,7 +690,7 @@
                     </div>
                 </div>
 
-                <div class="warning-box" style="background: var(--base-10); border-color: var(--color-base); margin-top: 30px;">
+                <div class="warning-box" style="background: rgba(221, 221, 221, 0.1); border-color: #DDDDDD; margin-top: 30px;">
                     <span class="warning-icon">✅</span>
                     <div>
                         <strong>Ready to Execute:</strong> All conditions met. Enter at FVG/IFVG with tight stop loss.

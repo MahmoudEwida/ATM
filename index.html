@@ -13,8 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000;
-            color: #FFFFFF;
+            background: #EEEEEE;
+            color: #222222;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,22 +25,22 @@
         .container {
             width: 100%;
             max-width: 800px;
-            background: #1a1a1a;
+            background: #222222;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            border: 1px solid #333333;
+            border: 1px solid #BE3030;
         }
 
         .header {
-            background: #000000;
+            background: #222222;
             padding: 30px;
             text-align: center;
-            border-bottom: 3px solid #F05454;
+            border-bottom: 3px solid #BE3030;
         }
 
         .header h1 {
-            color: #FFFFFF;
+            color: #EEEEEE;
             font-size: 2em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -48,7 +48,7 @@
         }
 
         .progress-bar {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(238, 238, 238, 0.3);
             height: 8px;
             border-radius: 4px;
             margin-top: 20px;
@@ -56,49 +56,49 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #F05454, #FFFFFF);
+            background: linear-gradient(90deg, #BE3030, #EEEEEE);
             height: 100%;
             border-radius: 4px;
             transition: width 0.5s ease;
-            box-shadow: 0 0 10px rgba(240, 84, 84, 0.5);
+            box-shadow: 0 0 10px rgba(190, 48, 48, 0.5);
         }
 
         .step-indicators {
             display: flex;
             justify-content: space-between;
             padding: 20px 30px;
-            background: #333333;
+            background: #222222;
         }
 
         .step-dot {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(238, 238, 238, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            color: #CCCCCC;
+            color: #EEEEEE;
         }
 
         .step-dot.active {
-            background: #F05454;
-            border-color: #FFFFFF;
+            background: #BE3030;
+            border-color: #EEEEEE;
             transform: scale(1.2);
-            box-shadow: 0 0 20px rgba(240, 84, 84, 0.5);
-            color: #FFFFFF;
+            box-shadow: 0 0 20px rgba(190, 48, 48, 0.5);
+            color: #EEEEEE;
         }
 
         .step-dot.completed {
-            background: #CCCCCC;
-            color: #000000;
+            background: #EEEEEE;
+            color: #222222;
         }
 
         .content {
-            background: #1a1a1a;
+            background: #222222;
             padding: 40px;
             min-height: 500px;
             position: relative;
@@ -125,7 +125,7 @@
         }
 
         .step-title {
-            color: #F05454;
+            color: #BE3030;
             font-size: 1.8em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -133,7 +133,7 @@
         }
 
         .step-subtitle {
-            color: #CCCCCC;
+            color: #EEEEEE;
             opacity: 0.9;
             margin-bottom: 30px;
             font-size: 1.1em;
@@ -147,7 +147,7 @@
         }
 
         .option-card {
-            background: #333333;
+            background: #EEEEEE;
             padding: 20px;
             border-radius: 15px;
             border: 2px solid transparent;
@@ -164,7 +164,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(240, 84, 84, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(190, 48, 48, 0.2), transparent);
             transition: left 0.5s ease;
         }
 
@@ -174,24 +174,24 @@
 
         .option-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(240, 84, 84, 0.3);
-            border-color: #F05454;
+            box-shadow: 0 10px 30px rgba(190, 48, 48, 0.3);
+            border-color: #BE3030;
         }
 
         .option-card.selected {
-            background: linear-gradient(135deg, #333333, rgba(240, 84, 84, 0.2));
-            border-color: #F05454;
-            box-shadow: 0 0 20px rgba(240, 84, 84, 0.3);
+            background: linear-gradient(135deg, #EEEEEE, rgba(190, 48, 48, 0.2));
+            border-color: #BE3030;
+            box-shadow: 0 0 20px rgba(190, 48, 48, 0.3);
         }
 
         .option-card h3 {
-            color: #F05454;
+            color: #BE3030;
             margin-bottom: 10px;
             font-size: 1.2em;
         }
 
         .option-card p {
-            color: #CCCCCC;
+            color: #222222;
             opacity: 0.9;
             font-size: 0.95em;
         }
@@ -204,7 +204,7 @@
         }
 
         .radio-option {
-            background: #333333;
+            background: #EEEEEE;
             padding: 20px;
             border-radius: 10px;
             display: flex;
@@ -212,10 +212,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            color: #222222;
         }
 
         .radio-option:hover {
-            border-color: #F05454;
+            border-color: #BE3030;
             transform: translateX(5px);
         }
 
@@ -223,12 +224,12 @@
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            accent-color: #F05454;
+            accent-color: #BE3030;
         }
 
         .radio-option.selected {
-            background: linear-gradient(135deg, #333333, rgba(240, 84, 84, 0.2));
-            border-color: #F05454;
+            background: linear-gradient(135deg, #EEEEEE, rgba(190, 48, 48, 0.2));
+            border-color: #BE3030;
         }
 
         .checkbox-group {
@@ -239,7 +240,7 @@
         }
 
         .checkbox-option {
-            background: #333333;
+            background: #EEEEEE;
             padding: 15px 20px;
             border-radius: 10px;
             display: flex;
@@ -247,27 +248,28 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            color: #222222;
         }
 
         .checkbox-option:hover {
-            border-color: #F05454;
+            border-color: #BE3030;
         }
 
         .checkbox-option input[type="checkbox"] {
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            accent-color: #F05454;
+            accent-color: #BE3030;
         }
 
         .checkbox-option.checked {
-            background: linear-gradient(135deg, #333333, rgba(240, 84, 84, 0.2));
-            border-color: #F05454;
+            background: linear-gradient(135deg, #EEEEEE, rgba(190, 48, 48, 0.2));
+            border-color: #BE3030;
         }
 
         .warning-box {
-            background: rgba(240, 84, 84, 0.1);
-            border: 2px solid #F05454;
+            background: rgba(190, 48, 48, 0.1);
+            border: 2px solid #BE3030;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
@@ -278,12 +280,12 @@
 
         .warning-icon {
             font-size: 2em;
-            color: #F05454;
+            color: #BE3030;
         }
 
         .info-box {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid #F05454;
+            background: rgba(238, 238, 238, 0.1);
+            border-left: 4px solid #BE3030;
             padding: 15px 20px;
             margin-bottom: 20px;
             border-radius: 5px;

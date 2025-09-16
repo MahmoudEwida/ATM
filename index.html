@@ -830,4 +830,158 @@
         document.getElementById('btn4').addEventListener('click', () => goToStep(5));
 
         // Step 5 handlers
-        document.querySelectorAll('input[name="ltf
+        document.querySelectorAll('input[name="ltf-check"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.parentElement.classList.add('checked');
+                    userData.ltfChecks.push(this.value);
+                } else {
+                    this.parentElement.classList.remove('checked');
+                    userData.ltfChecks = userData.ltfChecks.filter(v => v !== this.value);
+                }
+                checkStep5();
+            });
+        });
+
+        function checkStep5() {
+            const fvgChecked = userData.ltfChecks.includes('fvg');
+            if (fvgChecked && userData.ltfChecks.length >= 2) {
+                document.getElementById('btn5').disabled = false;
+                document.getElementById('btn5').classList.add('enabled');
+            } else {
+                document.getElementById('btn5').disabled = true;
+                document.getElementById('btn5').classList.remove('enabled');
+            }
+        }
+
+        document.getElementById('btn5').addEventListener('click', () => goToStep(6));
+
+        // Navigation function
+        function goToStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            
+            // Hide current step
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`dot${currentStep}`).classList.remove('active');
+            
+            // Mark completed steps
+            if (step > currentStep) {
+                document.getElementById(`dot${currentStep}`).classList.add('completed');
+            }
+            
+            currentStep = step;
+            
+            // Show new step
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`dot${currentStep}`).classList.add('active');
+            
+            // Update progress bar
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update summary if on final step
+            if (currentStep === 6) {
+                updateSummary();
+                updateFinalChecklist();
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('summaryBias').textContent = userData.bias || '-';
+            document.getElementById('summaryLiquidity').textContent = userData.liquidity || '-';
+            document.getElementById('summaryDirection').textContent = userData.direction || '-';
+            document.getElementById('summaryManipulation').textContent = userData.manipulation || '-';
+            document.getElementById('summaryFlow').textContent = userData.orderFlow || '-';
+            document.getElementById('summaryTarget').textContent = userData.target || '-';
+        }
+
+        function updateFinalChecklist() {
+            // HTF Bias check
+            if (userData.bias && userData.liquidity) {
+                document.getElementById('check1').classList.add('complete');
+            }
+            
+            // Manipulation check
+            if (userData.manipulation === 'yes') {
+                document.getElementById('check2').classList.add('complete');
+            }
+            
+            // Order flow check
+            if (userData.orderFlow && userData.orderFlow !== 'neutral') {
+                document.getElementById('check3').classList.add('complete');
+            }
+            
+            // HTF targets check
+            if (userData.htfChecks.length >= 3 && userData.target) {
+                document.getElementById('check4').classList.add('complete');
+            }
+            
+            // MSS check
+            if (userData.ltfChecks.includes('mss')) {
+                document.getElementById('check5').classList.add('complete');
+            }
+            
+            // FVG check
+            if (userData.ltfChecks.includes('fvg')) {
+                document.getElementById('check6').classList.add('complete');
+            }
+        }
+
+        function resetStrategy() {
+            // Reset all data
+            Object.keys(userData).forEach(key => {
+                if (Array.isArray(userData[key])) {
+                    userData[key] = [];
+                } else {
+                    userData[key] = null;
+                }
+            });
+            
+            // Reset UI
+            document.querySelectorAll('.option-card, .radio-option, .checkbox-option').forEach(el => {
+                el.classList.remove('selected', 'checked');
+            });
+            
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.checked = false;
+            });
+            
+            document.getElementById('targetInput').value = '';
+            
+            document.querySelectorAll('.step-dot').forEach(dot => {
+                dot.classList.remove('active', 'completed');
+            });
+            
+            document.querySelectorAll('.step-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.checklist-item').forEach(item => {
+                item.classList.remove('complete');
+            });
+            
+            document.querySelectorAll('.btn-next').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('enabled');
+            });
+            
+            // Reset to step 1
+            currentStep = 1;
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('dot1').classList.add('active');
+            document.getElementById('progressBar').style.width = '16.66%';
+        }
+
+        // Add radio button styling handlers
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const name = this.name;
+                document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                this.parentElement.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -13,8 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
-            color: #ECF0F1;
+            background: linear-gradient(135deg, #222831 0%, #30475E 100%);
+            color: #DDDDDD;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,21 +25,21 @@
         .container {
             width: 100%;
             max-width: 800px;
-            background: #2C3E50;
+            background: #222831;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #34495E, #2C3E50);
+            background: linear-gradient(135deg, #30475E, #222831);
             padding: 30px;
             text-align: center;
-            border-bottom: 3px solid #E74C3C;
+            border-bottom: 3px solid #F05454;
         }
 
         .header h1 {
-            color: #ECF0F1;
+            color: #DDDDDD;
             font-size: 2em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -55,7 +55,7 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #E74C3C, #ECF0F1);
+            background: linear-gradient(90deg, #F05454, #DDDDDD);
             height: 100%;
             border-radius: 4px;
             transition: width 0.5s ease;
@@ -66,7 +66,7 @@
             display: flex;
             justify-content: space-between;
             padding: 20px 30px;
-            background: #34495E;
+            background: #30475E;
         }
 
         .step-dot {
@@ -83,15 +83,15 @@
         }
 
         .step-dot.active {
-            background: #E74C3C;
-            border-color: #ECF0F1;
+            background: #F05454;
+            border-color: #DDDDDD;
             transform: scale(1.2);
             box-shadow: 0 0 20px rgba(240, 84, 84, 0.5);
         }
 
         .step-dot.completed {
-            background: #ECF0F1;
-            color: #2C3E50;
+            background: #DDDDDD;
+            color: #222831;
         }
 
         .content {
@@ -121,7 +121,7 @@
         }
 
         .step-title {
-            color: #E74C3C;
+            color: #F05454;
             font-size: 1.8em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -129,7 +129,7 @@
         }
 
         .step-subtitle {
-            color: #ECF0F1;
+            color: #DDDDDD;
             opacity: 0.8;
             margin-bottom: 30px;
             font-size: 1.1em;
@@ -143,7 +143,7 @@
         }
 
         .option-card {
-            background: #34495E;
+            background: #30475E;
             padding: 20px;
             border-radius: 15px;
             border: 2px solid transparent;
@@ -171,23 +171,23 @@
         .option-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(240, 84, 84, 0.3);
-            border-color: #E74C3C;
+            border-color: #F05454;
         }
 
         .option-card.selected {
-            background: linear-gradient(135deg, #34495E, rgba(240, 84, 84, 0.2));
-            border-color: #E74C3C;
+            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            border-color: #F05454;
             box-shadow: 0 0 20px rgba(240, 84, 84, 0.3);
         }
 
         .option-card h3 {
-            color: #E74C3C;
+            color: #F05454;
             margin-bottom: 10px;
             font-size: 1.2em;
         }
 
         .option-card p {
-            color: #ECF0F1;
+            color: #DDDDDD;
             opacity: 0.9;
             font-size: 0.95em;
         }
@@ -200,7 +200,7 @@
         }
 
         .radio-option {
-            background: #34495E;
+            background: #30475E;
             padding: 20px;
             border-radius: 10px;
             display: flex;
@@ -211,7 +211,7 @@
         }
 
         .radio-option:hover {
-            border-color: #E74C3C;
+            border-color: #F05454;
             transform: translateX(5px);
         }
 
@@ -219,12 +219,12 @@
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            accent-color: #E74C3C;
+            accent-color: #F05454;
         }
 
         .radio-option.selected {
-            background: linear-gradient(135deg, #34495E, rgba(240, 84, 84, 0.2));
-            border-color: #E74C3C;
+            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            border-color: #F05454;
         }
 
         .checkbox-group {
@@ -235,7 +235,7 @@
         }
 
         .checkbox-option {
-            background: #34495E;
+            background: #30475E;
             padding: 15px 20px;
             border-radius: 10px;
             display: flex;
@@ -246,24 +246,24 @@
         }
 
         .checkbox-option:hover {
-            border-color: #E74C3C;
+            border-color: #F05454;
         }
 
         .checkbox-option input[type="checkbox"] {
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            accent-color: #E74C3C;
+            accent-color: #F05454;
         }
 
         .checkbox-option.checked {
-            background: linear-gradient(135deg, #34495E, rgba(240, 84, 84, 0.2));
-            border-color: #E74C3C;
+            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            border-color: #F05454;
         }
 
         .warning-box {
             background: rgba(240, 84, 84, 0.1);
-            border: 2px solid #E74C3C;
+            border: 2px solid #F05454;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
@@ -274,12 +274,12 @@
 
         .warning-icon {
             font-size: 2em;
-            color: #E74C3C;
+            color: #F05454;
         }
 
         .info-box {
             background: rgba(221, 221, 221, 0.1);
-            border-left: 4px solid #E74C3C;
+            border-left: 4px solid #F05454;
             padding: 15px 20px;
             margin-bottom: 20px;
             border-radius: 5px;
@@ -305,8 +305,8 @@
         }
 
         .btn-next {
-            background: #E74C3C;
-            color: #ECF0F1;
+            background: #F05454;
+            color: #DDDDDD;
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -317,25 +317,25 @@
         }
 
         .btn-next.enabled:hover {
-            background: linear-gradient(135deg, #E74C3C, #34495E);
+            background: linear-gradient(135deg, #F05454, #30475E);
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(240, 84, 84, 0.4);
         }
 
         .btn-back {
-            background: #34495E;
-            color: #ECF0F1;
-            border: 2px solid #ECF0F1;
+            background: #30475E;
+            color: #DDDDDD;
+            border: 2px solid #DDDDDD;
         }
 
         .btn-back:hover {
-            background: #ECF0F1;
-            color: #2C3E50;
+            background: #DDDDDD;
+            color: #222831;
             transform: translateY(-2px);
         }
 
         .summary-section {
-            background: #34495E;
+            background: #30475E;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
@@ -354,12 +354,12 @@
 
         .summary-label {
             font-weight: bold;
-            color: #E74C3C;
+            color: #F05454;
             min-width: 150px;
         }
 
         .summary-value {
-            color: #ECF0F1;
+            color: #DDDDDD;
         }
 
         .final-checklist {
@@ -380,11 +380,11 @@
 
         .checklist-item.complete {
             background: rgba(240, 84, 84, 0.2);
-            border: 1px solid #E74C3C;
+            border: 1px solid #F05454;
         }
 
         .check-icon {
-            color: #E74C3C;
+            color: #F05454;
             font-size: 1.2em;
         }
 
@@ -580,7 +580,7 @@
                     <strong>Target levels:</strong> Enter your identified target zones
                 </div>
 
-                <input type="text" id="targetInput" placeholder="Enter target level (e.g., 1.2500)" style="width: 100%; padding: 12px; background: #34495E; border: 2px solid #ECF0F1; border-radius: 8px; color: #ECF0F1; font-size: 1.1em; margin-bottom: 20px;">
+                <input type="text" id="targetInput" placeholder="Enter target level (e.g., 1.2500)" style="width: 100%; padding: 12px; background: #30475E; border: 2px solid #DDDDDD; border-radius: 8px; color: #DDDDDD; font-size: 1.1em; margin-bottom: 20px;">
 
                 <div class="button-group">
                     <button class="btn btn-back" onclick="goToStep(3)">← Back</button>
@@ -631,7 +631,7 @@
                 <p class="step-subtitle">Review your setup and execute with precision</p>
 
                 <div class="summary-section">
-                    <h3 style="color: #E74C3C; margin-bottom: 20px;">Your Trading Setup:</h3>
+                    <h3 style="color: #F05454; margin-bottom: 20px;">Your Trading Setup:</h3>
                     <div class="summary-item">
                         <span class="summary-label">HTF Bias:</span>
                         <span class="summary-value" id="summaryBias">-</span>
@@ -662,7 +662,7 @@
                     <strong>PRECISE ENTRY (3ALATOOL):</strong> Enter at the FVG/IFVG with minimized stop loss placement
                 </div>
 
-                <h3 style="color: #E74C3C; margin-top: 30px; margin-bottom: 15px;">Final Checklist:</h3>
+                <h3 style="color: #F05454; margin-top: 30px; margin-bottom: 15px;">Final Checklist:</h3>
                 <div class="final-checklist">
                     <div class="checklist-item" id="check1">
                         <span class="check-icon">✓</span>
@@ -690,7 +690,7 @@
                     </div>
                 </div>
 
-                <div class="warning-box" style="background: rgba(221, 221, 221, 0.1); border-color: #ECF0F1; margin-top: 30px;">
+                <div class="warning-box" style="background: rgba(221, 221, 221, 0.1); border-color: #DDDDDD; margin-top: 30px;">
                     <span class="warning-icon">✅</span>
                     <div>
                         <strong>Ready to Execute:</strong> All conditions met. Enter at FVG/IFVG with tight stop loss.

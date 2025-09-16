@@ -570,17 +570,7 @@
                         <input type="checkbox" name="htf-check" value="smt">
                         <span>Target didn't get SMT-ed (checked for opposite SMT)</span>
                     </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" name="htf-check" value="poi">
-                        <span>Key POIs (Points of Interest) marked on HTF</span>
-                    </label>
                 </div>
-
-                <div class="info-box">
-                    <strong>Target levels:</strong> Enter your identified target zones
-                </div>
-
-                <input type="text" id="targetInput" placeholder="Enter target level (e.g., 1.2500)" style="width: 100%; padding: 12px; background: #30475E; border: 2px solid #DDDDDD; border-radius: 8px; color: #DDDDDD; font-size: 1.1em; margin-bottom: 20px;">
 
                 <div class="button-group">
                     <button class="btn btn-back" onclick="goToStep(3)">← Back</button>
@@ -651,10 +641,6 @@
                     <div class="summary-item">
                         <span class="summary-label">Order Flow:</span>
                         <span class="summary-value" id="summaryFlow">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Target Level:</span>
-                        <span class="summary-value" id="summaryTarget">-</span>
                     </div>
                 </div>
 
@@ -816,13 +802,8 @@
             });
         });
 
-        document.getElementById('targetInput').addEventListener('input', function() {
-            userData.target = this.value;
-            checkStep4();
-        });
-
         function checkStep4() {
-            if (userData.htfChecks.length >= 3 && userData.target) {
+            if (userData.htfChecks.length >= 2) {
                 document.getElementById('btn4').disabled = false;
                 document.getElementById('btn4').classList.add('enabled');
             }
@@ -893,7 +874,6 @@
             document.getElementById('summaryDirection').textContent = userData.direction || '-';
             document.getElementById('summaryManipulation').textContent = userData.manipulation || '-';
             document.getElementById('summaryFlow').textContent = userData.orderFlow || '-';
-            document.getElementById('summaryTarget').textContent = userData.target || '-';
         }
 
         function updateFinalChecklist() {
@@ -913,7 +893,7 @@
             }
             
             // HTF targets check
-            if (userData.htfChecks.length >= 3 && userData.target) {
+            if (userData.htfChecks.length >= 2) {
                 document.getElementById('check4').classList.add('complete');
             }
             
@@ -947,7 +927,6 @@
                 input.checked = false;
             });
             
-            document.getElementById('targetInput').value = '';
             
             document.querySelectorAll('.step-dot').forEach(dot => {
                 dot.classList.remove('active', 'completed');

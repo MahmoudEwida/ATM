@@ -13,8 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #EEEEEE;
-            color: #222222;
+            background: #222222;
+            color: #EEEEEE;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,22 +25,22 @@
         .container {
             width: 100%;
             max-width: 800px;
-            background: #222222;
+            background: #EEEEEE;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             border: 1px solid #BE3030;
         }
 
         .header {
-            background: #222222;
+            background: #EEEEEE;
             padding: 30px;
             text-align: center;
             border-bottom: 3px solid #BE3030;
         }
 
         .header h1 {
-            color: #EEEEEE;
+            color: #222222;
             font-size: 2em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -48,7 +48,7 @@
         }
 
         .progress-bar {
-            background: rgba(238, 238, 238, 0.3);
+            background: rgba(34, 34, 34, 0.3);
             height: 8px;
             border-radius: 4px;
             margin-top: 20px;
@@ -56,7 +56,7 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #BE3030, #EEEEEE);
+            background: linear-gradient(90deg, #BE3030, #222222);
             height: 100%;
             border-radius: 4px;
             transition: width 0.5s ease;
@@ -67,38 +67,38 @@
             display: flex;
             justify-content: space-between;
             padding: 20px 30px;
-            background: #222222;
+            background: #EEEEEE;
         }
 
         .step-dot {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(238, 238, 238, 0.2);
+            background: rgba(34, 34, 34, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            color: #EEEEEE;
+            color: #222222;
         }
 
         .step-dot.active {
             background: #BE3030;
-            border-color: #EEEEEE;
+            border-color: #222222;
             transform: scale(1.2);
             box-shadow: 0 0 20px rgba(190, 48, 48, 0.5);
-            color: #EEEEEE;
-        }
-
-        .step-dot.completed {
-            background: #EEEEEE;
             color: #222222;
         }
 
-        .content {
+        .step-dot.completed {
             background: #222222;
+            color: #EEEEEE;
+        }
+
+        .content {
+            background: #EEEEEE;
             padding: 40px;
             min-height: 500px;
             position: relative;
@@ -133,7 +133,7 @@
         }
 
         .step-subtitle {
-            color: #EEEEEE;
+            color: #222222;
             opacity: 0.9;
             margin-bottom: 30px;
             font-size: 1.1em;
@@ -147,7 +147,7 @@
         }
 
         .option-card {
-            background: #EEEEEE;
+            background: #222222;
             padding: 20px;
             border-radius: 15px;
             border: 2px solid transparent;
@@ -179,7 +179,7 @@
         }
 
         .option-card.selected {
-            background: linear-gradient(135deg, #EEEEEE, rgba(190, 48, 48, 0.2));
+            background: linear-gradient(135deg, #222222, rgba(190, 48, 48, 0.2));
             border-color: #BE3030;
             box-shadow: 0 0 20px rgba(190, 48, 48, 0.3);
         }
@@ -191,7 +191,7 @@
         }
 
         .option-card p {
-            color: #222222;
+            color: #EEEEEE;
             opacity: 0.9;
             font-size: 0.95em;
         }
@@ -204,7 +204,7 @@
         }
 
         .radio-option {
-            background: #EEEEEE;
+            background: #222222;
             padding: 20px;
             border-radius: 10px;
             display: flex;
@@ -212,7 +212,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            color: #222222;
+            color: #EEEEEE;
         }
 
         .radio-option:hover {
@@ -228,7 +228,7 @@
         }
 
         .radio-option.selected {
-            background: linear-gradient(135deg, #EEEEEE, rgba(190, 48, 48, 0.2));
+            background: linear-gradient(135deg, #222222, rgba(190, 48, 48, 0.2));
             border-color: #BE3030;
         }
 
@@ -240,7 +240,7 @@
         }
 
         .checkbox-option {
-            background: #EEEEEE;
+            background: #222222;
             padding: 15px 20px;
             border-radius: 10px;
             display: flex;
@@ -248,7 +248,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            color: #222222;
+            color: #EEEEEE;
         }
 
         .checkbox-option:hover {
@@ -263,7 +263,7 @@
         }
 
         .checkbox-option.checked {
-            background: linear-gradient(135deg, #EEEEEE, rgba(190, 48, 48, 0.2));
+            background: linear-gradient(135deg, #222222, rgba(190, 48, 48, 0.2));
             border-color: #BE3030;
         }
 
@@ -284,7 +284,7 @@
         }
 
         .info-box {
-            background: rgba(238, 238, 238, 0.1);
+            background: rgba(34, 34, 34, 0.3);
             border-left: 4px solid #BE3030;
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -311,8 +311,8 @@
         }
 
         .btn-next {
-            background: #F05454;
-            color: #FFFFFF;
+            background: #BE3030;
+            color: #EEEEEE;
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -323,25 +323,25 @@
         }
 
         .btn-next.enabled:hover {
-            background: linear-gradient(135deg, #F05454, #666666);
+            background: linear-gradient(135deg, #BE3030, #EEEEEE);
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(240, 84, 84, 0.4);
+            box-shadow: 0 10px 30px rgba(190, 48, 48, 0.4);
         }
 
         .btn-back {
-            background: #333333;
-            color: #FFFFFF;
-            border: 2px solid #CCCCCC;
+            background: #222222;
+            color: #EEEEEE;
+            border: 2px solid #EEEEEE;
         }
 
         .btn-back:hover {
-            background: #CCCCCC;
-            color: #000000;
+            background: #EEEEEE;
+            color: #222222;
             transform: translateY(-2px);
         }
 
         .summary-section {
-            background: #333333;
+            background: #222222;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
@@ -351,7 +351,7 @@
             display: flex;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(238, 238, 238, 0.2);
         }
 
         .summary-item:last-child {
@@ -360,12 +360,12 @@
 
         .summary-label {
             font-weight: bold;
-            color: #F05454;
+            color: #BE3030;
             min-width: 150px;
         }
 
         .summary-value {
-            color: #FFFFFF;
+            color: #EEEEEE;
         }
 
         .final-checklist {
@@ -376,7 +376,7 @@
         }
 
         .checklist-item {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(34, 34, 34, 0.3);
             padding: 15px;
             border-radius: 8px;
             display: flex;
@@ -385,12 +385,12 @@
         }
 
         .checklist-item.complete {
-            background: rgba(240, 84, 84, 0.2);
-            border: 1px solid #F05454;
+            background: rgba(190, 48, 48, 0.2);
+            border: 1px solid #BE3030;
         }
 
         .check-icon {
-            color: #F05454;
+            color: #BE3030;
             font-size: 1.2em;
         }
 
@@ -627,7 +627,7 @@
                 <p class="step-subtitle">Review your setup and execute with precision</p>
 
                 <div class="summary-section">
-                    <h3 style="color: #F05454; margin-bottom: 20px;">Your Trading Setup:</h3>
+                    <h3 style="color: #BE3030; margin-bottom: 20px;">Your Trading Setup:</h3>
                     <div class="summary-item">
                         <span class="summary-label">HTF Bias:</span>
                         <span class="summary-value" id="summaryBias">-</span>
@@ -654,7 +654,7 @@
                     <strong>PRECISE ENTRY (3ALATOOL):</strong> Enter at the FVG/IFVG with minimized stop loss placement
                 </div>
 
-                <h3 style="color: #F05454; margin-top: 30px; margin-bottom: 15px;">Final Checklist:</h3>
+                <h3 style="color: #BE3030; margin-top: 30px; margin-bottom: 15px;">Final Checklist:</h3>
                 <div class="final-checklist">
                     <div class="checklist-item" id="check1">
                         <span class="check-icon">✓</span>
@@ -682,7 +682,7 @@
                     </div>
                 </div>
 
-                <div class="warning-box" style="background: rgba(255, 255, 255, 0.1); border-color: #CCCCCC; margin-top: 30px;">
+                <div class="warning-box" style="background: rgba(34, 34, 34, 0.2); border-color: #BE3030; margin-top: 30px;">
                     <span class="warning-icon">✅</span>
                     <div>
                         <strong>Ready to Execute:</strong> All conditions met. Enter at FVG/IFVG with tight stop loss.

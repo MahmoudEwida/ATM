@@ -13,8 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #DDDDDD;
-            color: #222831;
+            background: #000000;
+            color: #FFFFFF;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,21 +25,22 @@
         .container {
             width: 100%;
             max-width: 800px;
-            background: #222831;
+            background: #1a1a1a;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             overflow: hidden;
+            border: 1px solid #333333;
         }
 
         .header {
-            background: #222831;
+            background: #000000;
             padding: 30px;
             text-align: center;
             border-bottom: 3px solid #F05454;
         }
 
         .header h1 {
-            color: #DDDDDD;
+            color: #FFFFFF;
             font-size: 2em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -47,7 +48,7 @@
         }
 
         .progress-bar {
-            background: rgba(221, 221, 221, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             height: 8px;
             border-radius: 4px;
             margin-top: 20px;
@@ -55,7 +56,7 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #F05454, #DDDDDD);
+            background: linear-gradient(90deg, #F05454, #FFFFFF);
             height: 100%;
             border-radius: 4px;
             transition: width 0.5s ease;
@@ -66,36 +67,38 @@
             display: flex;
             justify-content: space-between;
             padding: 20px 30px;
-            background: #30475E;
+            background: #333333;
         }
 
         .step-dot {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(221, 221, 221, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            color: #CCCCCC;
         }
 
         .step-dot.active {
             background: #F05454;
-            border-color: #DDDDDD;
+            border-color: #FFFFFF;
             transform: scale(1.2);
             box-shadow: 0 0 20px rgba(240, 84, 84, 0.5);
+            color: #FFFFFF;
         }
 
         .step-dot.completed {
-            background: #DDDDDD;
-            color: #222831;
+            background: #CCCCCC;
+            color: #000000;
         }
 
         .content {
-            background: #222831;
+            background: #1a1a1a;
             padding: 40px;
             min-height: 500px;
             position: relative;
@@ -130,7 +133,7 @@
         }
 
         .step-subtitle {
-            color: #DDDDDD;
+            color: #CCCCCC;
             opacity: 0.9;
             margin-bottom: 30px;
             font-size: 1.1em;
@@ -144,7 +147,7 @@
         }
 
         .option-card {
-            background: #30475E;
+            background: #333333;
             padding: 20px;
             border-radius: 15px;
             border: 2px solid transparent;
@@ -176,7 +179,7 @@
         }
 
         .option-card.selected {
-            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            background: linear-gradient(135deg, #333333, rgba(240, 84, 84, 0.2));
             border-color: #F05454;
             box-shadow: 0 0 20px rgba(240, 84, 84, 0.3);
         }
@@ -188,7 +191,7 @@
         }
 
         .option-card p {
-            color: #DDDDDD;
+            color: #CCCCCC;
             opacity: 0.9;
             font-size: 0.95em;
         }
@@ -201,7 +204,7 @@
         }
 
         .radio-option {
-            background: #30475E;
+            background: #333333;
             padding: 20px;
             border-radius: 10px;
             display: flex;
@@ -224,7 +227,7 @@
         }
 
         .radio-option.selected {
-            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            background: linear-gradient(135deg, #333333, rgba(240, 84, 84, 0.2));
             border-color: #F05454;
         }
 
@@ -236,7 +239,7 @@
         }
 
         .checkbox-option {
-            background: #30475E;
+            background: #333333;
             padding: 15px 20px;
             border-radius: 10px;
             display: flex;
@@ -258,7 +261,7 @@
         }
 
         .checkbox-option.checked {
-            background: linear-gradient(135deg, #30475E, rgba(240, 84, 84, 0.2));
+            background: linear-gradient(135deg, #333333, rgba(240, 84, 84, 0.2));
             border-color: #F05454;
         }
 
@@ -279,7 +282,7 @@
         }
 
         .info-box {
-            background: rgba(221, 221, 221, 0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-left: 4px solid #F05454;
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -307,7 +310,7 @@
 
         .btn-next {
             background: #F05454;
-            color: #DDDDDD;
+            color: #FFFFFF;
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -318,25 +321,25 @@
         }
 
         .btn-next.enabled:hover {
-            background: linear-gradient(135deg, #F05454, #30475E);
+            background: linear-gradient(135deg, #F05454, #666666);
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(240, 84, 84, 0.4);
         }
 
         .btn-back {
-            background: #30475E;
-            color: #DDDDDD;
-            border: 2px solid #DDDDDD;
+            background: #333333;
+            color: #FFFFFF;
+            border: 2px solid #CCCCCC;
         }
 
         .btn-back:hover {
-            background: #DDDDDD;
-            color: #222831;
+            background: #CCCCCC;
+            color: #000000;
             transform: translateY(-2px);
         }
 
         .summary-section {
-            background: #30475E;
+            background: #333333;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
@@ -346,7 +349,7 @@
             display: flex;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(221, 221, 221, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .summary-item:last-child {
@@ -360,7 +363,7 @@
         }
 
         .summary-value {
-            color: #DDDDDD;
+            color: #FFFFFF;
         }
 
         .final-checklist {
@@ -371,7 +374,7 @@
         }
 
         .checklist-item {
-            background: rgba(221, 221, 221, 0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
             display: flex;
@@ -677,7 +680,7 @@
                     </div>
                 </div>
 
-                <div class="warning-box" style="background: rgba(221, 221, 221, 0.1); border-color: #DDDDDD; margin-top: 30px;">
+                <div class="warning-box" style="background: rgba(255, 255, 255, 0.1); border-color: #CCCCCC; margin-top: 30px;">
                     <span class="warning-icon">✅</span>
                     <div>
                         <strong>Ready to Execute:</strong> All conditions met. Enter at FVG/IFVG with tight stop loss.

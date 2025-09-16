@@ -430,9 +430,45 @@
         </div>
 
         <div class="content">
-            <!-- Step 1: HTF Bias -->
+            <!-- Step 1: Order Flow (Previously Step 3) -->
             <div class="step-page active" id="step1">
-                <h2 class="step-title">Step 1: Identify HTF Bias</h2>
+                <h2 class="step-title">Step 1: Follow Order Flow</h2>
+                <p class="step-subtitle">Analyze market structure formation</p>
+
+                <div class="info-box">
+                    <strong>Identify the current market structure:</strong> Is the market making Higher Highs (HH) or Lower Lows (LL)?
+                </div>
+
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="orderflow" value="hh">
+                        <span><strong>Higher Highs (HH)</strong> - Bullish order flow confirmed</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="orderflow" value="ll">
+                        <span><strong>Lower Lows (LL)</strong> - Bearish order flow confirmed</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="orderflow" value="neutral">
+                        <span><strong>Neutral/Ranging</strong> - No clear structure yet</span>
+                    </label>
+                </div>
+
+                <div class="warning-box" id="flowWarning" style="display: none;">
+                    <span class="warning-icon">⚠️</span>
+                    <div>
+                        <strong>Conflict detected:</strong> Order flow doesn't match your bias direction. Re-evaluate or wait for alignment.
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-next" id="btn1" disabled>Next Step →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: HTF Bias (Previously Step 1) -->
+            <div class="step-page" id="step2">
+                <h2 class="step-title">Step 2: Identify HTF Bias</h2>
                 <p class="step-subtitle">Select the current market bias (D-4H timeframe)</p>
                 
                 <div class="options-grid">
@@ -470,13 +506,14 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="btn btn-next" id="btn1" disabled>Next Step →</button>
+                    <button class="btn btn-back" onclick="goToStep(1)">← Back</button>
+                    <button class="btn btn-next" id="btn2" disabled>Next Step →</button>
                 </div>
             </div>
 
-            <!-- Step 2: Direction & Manipulation -->
-            <div class="step-page" id="step2">
-                <h2 class="step-title">Step 2: Expect Manipulation</h2>
+            <!-- Step 3: Direction & Manipulation (Previously Step 2) -->
+            <div class="step-page" id="step3">
+                <h2 class="step-title">Step 3: Expect Manipulation</h2>
                 <p class="step-subtitle">Identify market direction and required manipulation</p>
 
                 <div class="radio-group">
@@ -511,43 +548,6 @@
                         <input type="radio" name="manipulation" value="no">
                         <span>NO - Still waiting for manipulation</span>
                     </label>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-back" onclick="goToStep(1)">← Back</button>
-                    <button class="btn btn-next" id="btn2" disabled>Next Step →</button>
-                </div>
-            </div>
-
-            <!-- Step 3: Order Flow -->
-            <div class="step-page" id="step3">
-                <h2 class="step-title">Step 3: Follow Order Flow</h2>
-                <p class="step-subtitle">Analyze market structure formation</p>
-
-                <div class="info-box">
-                    <strong>Identify the current market structure:</strong> Is the market making Higher Highs (HH) or Lower Lows (LL)?
-                </div>
-
-                <div class="radio-group">
-                    <label class="radio-option">
-                        <input type="radio" name="orderflow" value="hh">
-                        <span><strong>Higher Highs (HH)</strong> - Bullish order flow confirmed</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="orderflow" value="ll">
-                        <span><strong>Lower Lows (LL)</strong> - Bearish order flow confirmed</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="orderflow" value="neutral">
-                        <span><strong>Neutral/Ranging</strong> - No clear structure yet</span>
-                    </label>
-                </div>
-
-                <div class="warning-box" id="flowWarning" style="display: none;">
-                    <span class="warning-icon">⚠️</span>
-                    <div>
-                        <strong>Conflict detected:</strong> Order flow doesn't match your bias direction. Re-evaluate or wait for alignment.
-                    </div>
                 </div>
 
                 <div class="button-group">
@@ -666,15 +666,15 @@
                 <div class="final-checklist">
                     <div class="checklist-item" id="check1">
                         <span class="check-icon">✓</span>
-                        <span>HTF Bias Identified</span>
+                        <span>Order Flow Aligned</span>
                     </div>
                     <div class="checklist-item" id="check2">
                         <span class="check-icon">✓</span>
-                        <span>Manipulation Confirmed</span>
+                        <span>HTF Bias Identified</span>
                     </div>
                     <div class="checklist-item" id="check3">
                         <span class="check-icon">✓</span>
-                        <span>Order Flow Aligned</span>
+                        <span>Manipulation Confirmed</span>
                     </div>
                     <div class="checklist-item" id="check4">
                         <span class="check-icon">✓</span>
@@ -719,72 +719,14 @@
             ltfChecks: []
         };
 
-        // Step 1 handlers
-        document.querySelectorAll('.option-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                userData.bias = this.dataset.bias;
-                checkStep1();
-            });
-        });
-
-        document.querySelectorAll('input[name="liquidity"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
-                this.parentElement.classList.add('selected');
-                userData.liquidity = this.value;
-                checkStep1();
-            });
-        });
-
-        function checkStep1() {
-            if (userData.bias && userData.liquidity) {
-                document.getElementById('btn1').disabled = false;
-                document.getElementById('btn1').classList.add('enabled');
-            }
-        }
-
-        document.getElementById('btn1').addEventListener('click', () => goToStep(2));
-
-        // Step 2 handlers
-        document.querySelectorAll('input[name="direction"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                userData.direction = this.value;
-                checkStep2();
-            });
-        });
-
-        document.querySelectorAll('input[name="manipulation"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                userData.manipulation = this.value;
-                checkStep2();
-            });
-        });
-
-        function checkStep2() {
-            if (userData.direction && userData.manipulation) {
-                if (userData.manipulation === 'no') {
-                    alert('⚠️ Warning: You must wait for manipulation before proceeding. No entry without manipulation!');
-                    document.getElementById('btn2').disabled = true;
-                    document.getElementById('btn2').classList.remove('enabled');
-                } else {
-                    document.getElementById('btn2').disabled = false;
-                    document.getElementById('btn2').classList.add('enabled');
-                }
-            }
-        }
-
-        document.getElementById('btn2').addEventListener('click', () => goToStep(3));
-
-        // Step 3 handlers
+        // Step 1 handlers (Order Flow - Previously Step 3)
         document.querySelectorAll('input[name="orderflow"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 userData.orderFlow = this.value;
                 checkOrderFlowAlignment();
                 if (userData.orderFlow) {
-                    document.getElementById('btn3').disabled = false;
-                    document.getElementById('btn3').classList.add('enabled');
+                    document.getElementById('btn1').disabled = false;
+                    document.getElementById('btn1').classList.add('enabled');
                 }
             });
         });
@@ -796,6 +738,65 @@
                 warning.style.display = 'flex';
             } else {
                 warning.style.display = 'none';
+            }
+        }
+
+        document.getElementById('btn1').addEventListener('click', () => goToStep(2));
+
+        // Step 2 handlers (HTF Bias - Previously Step 1)
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                userData.bias = this.dataset.bias;
+                checkStep2();
+            });
+        });
+
+        document.querySelectorAll('input[name="liquidity"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                this.parentElement.classList.add('selected');
+                userData.liquidity = this.value;
+                checkStep2();
+            });
+        });
+
+        function checkStep2() {
+            if (userData.bias && userData.liquidity) {
+                document.getElementById('btn2').disabled = false;
+                document.getElementById('btn2').classList.add('enabled');
+            }
+        }
+
+        document.getElementById('btn2').addEventListener('click', () => goToStep(3));
+
+        // Step 3 handlers (Direction & Manipulation - Previously Step 2)
+        document.querySelectorAll('input[name="direction"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                userData.direction = this.value;
+                checkStep3();
+                checkOrderFlowAlignment(); // Re-check alignment when direction changes
+            });
+        });
+
+        document.querySelectorAll('input[name="manipulation"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                userData.manipulation = this.value;
+                checkStep3();
+            });
+        });
+
+        function checkStep3() {
+            if (userData.direction && userData.manipulation) {
+                if (userData.manipulation === 'no') {
+                    alert('⚠️ Warning: You must wait for manipulation before proceeding. No entry without manipulation!');
+                    document.getElementById('btn3').disabled = true;
+                    document.getElementById('btn3').classList.remove('enabled');
+                } else {
+                    document.getElementById('btn3').disabled = false;
+                    document.getElementById('btn3').classList.add('enabled');
+                }
             }
         }
 
@@ -896,18 +897,18 @@
         }
 
         function updateFinalChecklist() {
-            // HTF Bias check
-            if (userData.bias && userData.liquidity) {
+            // Order Flow check (now step 1)
+            if (userData.orderFlow && userData.orderFlow !== 'neutral') {
                 document.getElementById('check1').classList.add('complete');
             }
             
-            // Manipulation check
-            if (userData.manipulation === 'yes') {
+            // HTF Bias check (now step 2)
+            if (userData.bias && userData.liquidity) {
                 document.getElementById('check2').classList.add('complete');
             }
             
-            // Order flow check
-            if (userData.orderFlow && userData.orderFlow !== 'neutral') {
+            // Manipulation check (now step 3)
+            if (userData.manipulation === 'yes') {
                 document.getElementById('check3').classList.add('complete');
             }
             
